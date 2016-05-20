@@ -8,8 +8,6 @@
 #include <map>
 #include <set>
 #include <queue>
-#include <cctype>
-#include <ctime>
 using namespace std;
 typedef pair<int,int> Pii;
 typedef long long LL;
@@ -20,7 +18,17 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) (a*a)
 
+const int maxn=8e3+10;
+struct data{int v,t;};
+int N;
+data inpt[maxn];
+int ans[maxn];
 
+bool dacmp(const data& u, const data& v)
+{
+	if(u.v!=v.v) return u.v < v.v;
+	return u.t > v.t;
+}
 
 int main()
 {
@@ -29,12 +37,21 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	srand(time(0));
-	int N=5;
-	bool vis[10]={0};
-	for(int i=0; i<N; i++) vis[rand()%10]=1;
-	for(int i=1; i<10; i++) if(vis[i]) printf("%d ", i);
-	puts("");
+	while(~scanf("%d", &N))
+	{
+		inpt[0].t=0; inpt[0].v=0;
+		for(int i=1; i<N; i++)
+		{
+			inpt[i].t=i;
+			scanf("%d", &inpt[i].v);
+		}
+		sort(inpt, inpt+N, dacmp);
+		for(int i=0; i<N; i++)
+		{
+			ans[inpt[i].t]=i+1;
+		}
+		for(int i=0; i<N; i++) printf("%d\n", ans[i]);
+	}
 	return 0;
 }
 

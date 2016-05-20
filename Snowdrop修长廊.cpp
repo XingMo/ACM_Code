@@ -1,3 +1,12 @@
+/*
+
+使用若干条线段，覆盖坐标轴上的 N个点
+定义两点的距离为 dist(i,j)，则覆盖 [i,j]的代价为
+cost(i,j) = W + dist(i,j)^2
+
+斜率优化入门题，与 HDU - Print Article一致
+
+*/
 #pragma comment(linker, "/STACK:102400000,102400000")
 #include <cstdio>
 #include <iostream>
