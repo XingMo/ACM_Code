@@ -215,7 +215,7 @@ Pii SegmentTree::query(int np, int ql)
 	pushdown(np);
 	int mid=(now.l+now.r)>>1;
 	if(ql<=mid) return query(np*2, ql);
-	else return query(np*2+1,ql);
+	else return query(np*2+1, ql);
 }
 
 void SegmentTree::update(int np, int ql, int qr, int tid, int th)

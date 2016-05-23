@@ -1,12 +1,14 @@
 /*
-
+SCU - 4516
 有 N个关卡，可以分为 K块，每个关卡都有个权值 t_i
 每次选择最早没有通关的关卡块，设这个关卡包含了[i,j]的游戏
-选到最早没有通关的关卡是k, 选到 k的概率是 P = t_k / sigma_{x=i}^j 
+选到最早没有通关的关卡是k, 选到 k的概率是 P = t_k / sigma_{x=i}^j x
 选到一个关卡一定能通关，花费一小时
 求合理分块的情况下，通关所有关卡块的期望时间最小是多少
 
-原题是 CodeForces - 643C，做法是斜率优化DP。
+原题是 CodeForces - 643C Levels and Regions ，做法是斜率优化DP。
+概率公式的推导过程一脸懵逼，反正我看了题解才会做的 0.0
+http://m.blog.csdn.net/article/details?id=51346853
 */
 #pragma comment(linker, "/STACK:102400000,102400000")
 #include <cstdio>
