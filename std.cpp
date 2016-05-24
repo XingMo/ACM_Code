@@ -1,279 +1,153 @@
-#include <cstdio>
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include <algorithm>
-#include <cmath>
-#include <map>
-#include <set>
-#include <queue>
-#include <climits>
-using namespace std;
+    #include <iostream>
+    #include <cstdio>
+    #include <cstring>
+    using namespace std;
+    #define MAX_N 200000 + 16
+    #define MAX_M 100000 + 16
+    #define BUCKET_SIZE 450	// sqrt(MAX_N) = 447
      
-    #define LEFT(x) (x << 1)
-    #define RIGHT(x) ((x << 1) | 1)
-    #define MID(x, y) ((x + y) >> 1)
-    #define MAXN 200010
-    enum Type
+    int A[MAX_N], N, M;
+    struct Bucket
     {
-    	WALL, BIRD
-    };
+    	int count;		// 内部数字的个数
+    	int prefix_sum;	// 前缀和
+    }bucket[BUCKET_SIZE][BUCKET_SIZE];
      
-    struct Distance
+    // 平面坐标快速查询
+    struct Space
     {
-    	int id, d;	// 距离最近的墙的id以及距离
-    	Distance()
+    	int X[MAX_N], Y[MAX_N];
+    	
+    	void insert(const int& x, const int& y)
     	{
-    		d = INT_MAX;	// 0x3f3f3f3f让我WA了无数次(┳＿┳)... 
+    		X[y] = x;
+    		Y[x] = y;
     	}
-    };
      
-    Distance the_distance[MAXN];
-     
-    struct Wall
-    {
-    	int x1, y1, x2, y2;
-    }wall[MAXN];
-     
-    struct Bird
-    {
-    	int x, y;
-    }bird[MAXN];
-     
-    struct Object
-    {
-    	int x;
-    	int y1, y2;
-    	int id;
-    	Type type;
-    	Object(int x, int y1, int y2, int id, Type type) : x(x), y1(y1), y2(y2), id(id), type(type) {};
-    	bool operator < (const Object& other) const
+    	void remove(const int& x, const int& y)
     	{
-    		return x < other.x;
+    		X[y] = -1;
+    		Y[x] = -1;
     	}
-    };
      
-    vector <int> listx;
-    vector <int> listy;
-    int result[MAXN];
-    int N, M;
+    	int getX(const int& y)
+    	{
+    		return X[y];
+    	}
      
-    struct SegmentTree
+    	int getY(const int& x)
+    	{
+    		return Y[x];
+    	}
+    	void init()
+    	{
+    		memset(X, -1, sizeof(X)); memset(Y, -1, sizeof(Y));
+    	}
+    } space;
+     
+    void update_prefix_sum(int bx, int by) 
     {
-    	int left[MAXN * 8], right[MAXN * 8], value[MAXN * 8];
-    	void build(int p, int l, int r)
+    	int sum = (bx > 0 ? bucket[bx - 1][by].prefix_sum : 0);
+    	for (int i = bx; i < BUCKET_SIZE; ++i)
     	{
-    		left[p] = l;
-    		right[p] = r;
-    		value[p] = 0;
-    		if (l < r)
-    		{
-    			int mid = MID(l, r);
-    			build(LEFT(p), l, mid);
-    			build(RIGHT(p), mid + 1, r);
-    		}
-    	}
-    	void set(int p, int l, int r, int v)
-    	{
-    		if (left[p] == l && right[p] == r)
-    		{
-    			value[p] = v;
-    			return;
-    		}
-    		if (value[p] > 0)
-    		{
-    			value[LEFT(p)] = value[p];
-    			value[RIGHT(p)] = value[p];
-    			value[p] = 0;
-    		}
-    		int mid = MID(left[p], right[p]);
-    		if (l > mid)
-    		{
-    			set(RIGHT(p), l, r, v);
-    		}
-    		else if (r <= mid)
-    		{
-    			set(LEFT(p), l, r, v);
-    		}	
-    		else
-    		{
-    			set(LEFT(p), l, mid, v);
-    			set(RIGHT(p), mid + 1, r, v);
-    		}
-    	}
-    	int get(int p, int l)
-    	{
-    		if (left[p] == right[p] && left[p] == l)
-    		{
-    			return value[p];
-    		}
-    		if (value[p] > 0)
-    		{
-    			value[LEFT(p)] = value[p];
-    			value[RIGHT(p)] = value[p];
-    			value[p] = 0;
-    		}
-    		if (l > MID(left[p], right[p]))
-    		{
-    			return get(RIGHT(p), l);
-    		}
-    		else
-    		{
-    			return get(LEFT(p), l);
-    		}
-    	}
-    }tree;
-     
-    int get_distance(bool vertical, int x, int y)
-    {
-    	if (!vertical)
-    	{
-    		x = listx[x - 1];
-    		y = listx[y - 1];
-    	}
-    	else
-    	{
-    		x = listy[x - 1];
-    		y = listy[y - 1];
-    	}
-    	return abs(x - y);
-    }
-     
-    void go(const vector<Object>& obj_array, bool vertical)
-    {
-    	tree.build(1, 1, max(listx.size(), listy.size()) + 10);
-    	for (vector<Object>::const_iterator it = obj_array.begin(); it != obj_array.end(); ++it)
-    	{
-    		if (it->type == WALL)
-    		{
-    			tree.set(1, it->y1, it->y2, it->id);
-    		}
-    		else
-    		{
-    			int p = tree.get(1, it->y1);
-    			if (p)
-    			{
-    				int d = vertical ? min(get_distance(1, wall[p].y1, it->x), get_distance(1, wall[p].y2, it->x)) : min(get_distance(0, wall[p].x1, it->x), get_distance(0, wall[p].x2, it->x));
-    				if (d < the_distance[it->id].d)
-    				{
-    					the_distance[it->id].d = d;
-    					the_distance[it->id].id  = p;
-    				}
-    			}
-    		}
+    		sum += bucket[i][by].count;
+    		bucket[i][by].prefix_sum = sum;
     	}
     }
      
-    void fly_x()
+    // 加入一个点
+    void add(int x, int y) 
     {
-    	vector<Object> obj_array;
-    	for (int i = 1; i <= N; ++i)
-    	{
-    		obj_array.push_back(Object(wall[i].x1, wall[i].y1, wall[i].y2, i, WALL));
-    		if (wall[i].x1 != wall[i].x2)
-    		{
-    			obj_array.push_back(Object(wall[i].x2, wall[i].y1, wall[i].y2, i, WALL));
-    		}
-    	}
+    	space.insert(x, y);
+    	int bx = x / BUCKET_SIZE;
+    	int by = y / BUCKET_SIZE;
      
-    	for (int i = 1; i <= M; ++i)
-    	{
-    		obj_array.push_back(Object(bird[i].x, bird[i].y, 0, i, BIRD));
-    	}
-    	sort(obj_array.begin(), obj_array.end());
-    	go(obj_array, false);
-    	reverse(obj_array.begin(), obj_array.end());
-    	go(obj_array, false);
+    	++bucket[bx][by].count;
+    	update_prefix_sum(bx, by);
     }
      
-    void fly_y()
+    // 删除一个点
+    void remove(int x, int y) 
     {
-    	vector<Object> obj_array;
-    	for (int i = 1; i <= N; ++i)
-    	{
-    		obj_array.push_back(Object(wall[i].y1, wall[i].x1, wall[i].x2, i, WALL));
-    		if (wall[i].y1 != wall[i].y2)
-    		{
-    			obj_array.push_back(Object(wall[i].y2, wall[i].x1, wall[i].x2, i, WALL));
-    		}
-    	}
+    	space.remove(x, y);
+    	int bx = x / BUCKET_SIZE;
+    	int by = y / BUCKET_SIZE;
      
-    	for (int i = 1; i <= M; ++i)
-    	{
-    		obj_array.push_back(Object(bird[i].y, bird[i].x, 0, i, BIRD));
-    	}
-    	sort(obj_array.begin(), obj_array.end());
-    	go(obj_array, true);
-    	reverse(obj_array.begin(), obj_array.end());
-    	go(obj_array, true);
+    	--bucket[bx][by].count;
+    	update_prefix_sum(bx, by);
     }
      
+    // (0,0)与(x,y)围起来的矩形区域的点的个数
+    int count_sum(int x, int y) 
+    {
+    	int block_w = (x + 1) / BUCKET_SIZE;
+    	int block_h = (y + 1) / BUCKET_SIZE;
+     
+    	int count = 0;
+    	// 完全在内部的桶
+    	for (int i = 0; i < block_h; ++i) 
+    	{
+    		if (block_w > 0)
+    		{
+    			count += bucket[block_w - 1][i].prefix_sum;
+    		}
+    	}
+    	// 其他
+    	for (int i = block_w * BUCKET_SIZE; i <= x; ++i) 
+    	{
+    		if (space.getY(i) != -1 && space.getY(i) < block_h * BUCKET_SIZE) count++;
+    	}
+    	for (int i = block_h * BUCKET_SIZE; i <= y; ++i) 
+    	{
+    		if (space.getX(i) != -1 && space.getX(i) <= x) count++;
+    	}
+    	return count;
+    }
+     
+    // (x,y)的左上和右下方块内部点的个数就是逆序数对的个数
+    int count_inversion(int x, int y) 
+    {
+    	int count = 0;
+    	int intersection = count_sum(x, y);
+    	count += count_sum(x, N - 1) - intersection;	// 左上
+    	count += count_sum(N - 1, y) - intersection;	// 右下
+    	return count;
+    }
      
     ///////////////////////////SubMain//////////////////////////////////
     int main(int argc, char *argv[])
     {
-//    #ifndef ONLINE_JUDGE
-    	freopen("in.txt", "r", stdin);
-//    	freopen("stdout.txt", "w", stdout);
-//    #endif
-    	scanf("%d%d", &N, &M);
-    	for (int i = 1; i <= N; ++i)
+		#ifdef LOCAL
+//		freopen("in.txt", "r", stdin);
+		
+		#endif
+    	while (scanf("%d %d", &N, &M) != EOF)
     	{
-    		scanf("%d%d%d%d", &wall[i].x1, &wall[i].y1, &wall[i].x2, &wall[i].y2);
-    		if (wall[i].x1 > wall[i].x2)
+    		space.init();
+    		memset(bucket, 0, sizeof(bucket));
+    		for (int i = 0; i < N; ++i) 
     		{
-    			swap(wall[i].x1, wall[i].x2);
+    			scanf("%d", &A[i]);
+    			--A[i];
     		}
-    		if (wall[i].y1 > wall[i].y2)
+    		long long inversion = 0;
+    		for (int i = 0; i < N; ++i) 
     		{
-    			swap(wall[i].y1, wall[i].y2);
+    			add(i, A[i]);
+    			inversion += count_inversion(i, A[i]);
     		}
-    		listx.push_back(wall[i].x1);
-    		listx.push_back(wall[i].x2);
-    		listy.push_back(wall[i].y1);
-    		listy.push_back(wall[i].y2);
+    		
+    		for (int i = 0; i < M; ++i) 
+    		{
+    			int q;
+    			scanf("%d", &q);
+    			--q;
+    			printf("%lld\n", inversion);
+    			inversion -= count_inversion(space.getX(q), q);
+    			remove(space.getX(q), q);
+    		}
     	}
-     
-    	for (int i = 1; i <= M; ++i)
-    	{
-    		scanf("%d%d", &bird[i].x, &bird[i].y);
-    		listx.push_back(bird[i].x);
-    		listy.push_back(bird[i].y);
-    	}
-    	sort(listx.begin(), listx.end());
-    	listx.erase(unique(listx.begin(), listx.end()), listx.end());
-    	sort(listy.begin(), listy.end());
-    	listy.erase(unique(listy.begin(), listy.end()), listy.end());
-    	for (int i = 1; i <= N; ++i)
-    	{
-    		wall[i].x1 = lower_bound(listx.begin(), listx.end(), wall[i].x1) - listx.begin() + 1;
-    		wall[i].x2 = lower_bound(listx.begin(), listx.end(), wall[i].x2) - listx.begin() + 1;
-    		wall[i].y1 = lower_bound(listy.begin(), listy.end(), wall[i].y1) - listy.begin() + 1;
-    		wall[i].y2 = lower_bound(listy.begin(), listy.end(), wall[i].y2) - listy.begin() + 1;
-    	}
-    	for (int i = 1; i <= M; ++i)
-    	{
-    		bird[i].x = lower_bound(listx.begin(), listx.end(), bird[i].x) - listx.begin() + 1;
-    		bird[i].y = lower_bound(listy.begin(), listy.end(), bird[i].y) - listy.begin() + 1;
-    	}
-     
-    	fly_x();
-    	fly_y();
-     
-    	for (int i = 1; i <= M; ++i)
-    	{
-    		++result[the_distance[i].id];
-    	}
-    	for (int i = 1; i <= N; ++i)
-    	{
-    		printf("%d\n", result[i]);
-    	}
-     
-//    #ifndef ONLINE_JUDGE
-//    	fclose(stdin);
-//    	fclose(stdout);
-//    	system("out.txt");
-//    #endif
+
     	return 0;
     }
     ///////////////////////////End Sub//////////////////////////////////

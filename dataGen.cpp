@@ -19,24 +19,11 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) (a*a)
 
-int lrand(int opt, int MOD)
-{
-	int l=0, r=-1,h;
-	while(l>=r)
-	{
-		l=rand()%MOD;
-		r=rand()%MOD;
-	}
-	h=rand()%MOD;
-	if(opt) printf("%d %d %d %d\n", l, h, r, h);
-	else printf("%d %d %d %d\n", h, l, h, r);
-}
+const int maxn=2e5+10;
+int inpt[maxn];
+bool ban[maxn];
 
-int prand(int MOD)
-{
-	int x=rand()%MOD, y=rand()%MOD;
-	printf("%d %d\n", x, y);
-}
+void swapii(int&,int&);
 
 int main()
 {
@@ -47,17 +34,36 @@ int main()
 //	printf("%d", T);
 	for(int ck=1; ck<=T; ck++)
 	{
-		int N=5, M=2, MOD=10;
+		CLR(ban);
+		int N=20,M=10;
 		printf("%d %d\n", N, M);
-		for(int i=0; i<N; i++)
+		for(int i=1; i<=N; i++) inpt[i]=i;
+		for(int i=1; i<=5*N; i++)
 		{
-			lrand(rand()%2, MOD);
+			int x=0,y=0;
+			while(x==y)
+			{
+				x=rand()%N+1, y=rand()%N+1;
+			}
+			swapii(inpt[x], inpt[y]);
 		}
-		for(int i=0; i<M; i++)
+		
+		for(int i=1; i<=N; i++) printf("%d\n", inpt[i]);
+		ban[0]=1;
+		for(int i=1; i<=M; i++)
 		{
-			prand(MOD);
+			int x=0;
+			while(ban[x]) x=rand()%N+1;
+			printf("%d\n", inpt[x]);
+			ban[x]=1;
 		}
 	}
 	return 0;
 }
 
+void swapii(int &x, int &y)
+{
+	x^=y;
+	y^=x;
+	x^=y;
+}
