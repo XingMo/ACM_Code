@@ -18,7 +18,8 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) (a*a)
 
-char str[11];
+const int maxn=1e4+10, INF=0x3f3f3f3f;
+int N,S;
 
 int main()
 {
@@ -27,13 +28,17 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	int len=5;
-	for(int i=0; i<len; i++) str[i]='a'+i;
-	bool ok=1;
-	while(ok)
+	while(~scanf("%d%d", &N, &S))
 	{
-		puts(str);
-		ok=next_permutation(str,str+len);
+		LL ans=0, tmin=INF;
+		for(int i=1; i<=N; i++)
+		{
+			LL C,Y;
+			scanf("%lld%lld", &C, &Y);
+			tmin = min(C, tmin+S);
+			ans+=tmin*Y;
+		}
+		printf("%lld\n", ans);
 	}
 	return 0;
 }
