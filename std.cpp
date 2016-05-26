@@ -1,71 +1,32 @@
-#include <stdio.h>
-#include <stdlib.h>
-typedef struct node
-{
-	int s;
-	int e;
-}Node;
-Node p[1000010];
-int cmp(const void *_a,const void *_b)
-{
-	Node *a=(Node*)_a;
-	Node *b=(Node*)_b;
-	if(a->s==b->s)
-		return b->e-a->e;
-	return a->s-b->s;
-}
-int main()
-{
+#include<cstdio>  
+#include<cstring>  
+#include<algorithm>  
+using namespace std;  
+  
+int N,K;  
+double dp[1010][16];  
+  
+double f(int n,int k)//确定区间长度为N的X，有k个蛋，返回的是扔的次数的期望  
+{  
+    if(dp[n][k]>0) return dp[n][k];  
+    if(n==1) return 0;  
+    if(k==0) return 0x3f3f3f3f;  
+    double ans=0x3f3f3f3f;  
+    for(int i=1;i<n;i++)//假设这次我从i扔下去  
+    {  
+        double p1=(double)i/n;//有p1的几率会烂  
+        double exception=f(i,k-1)*p1//烂了，然后下楼  
+                        +f(n-i,k)*(1-p1);//没烂，上楼  
+        ans=min(ans,exception);  
+    }  
+    //printf("f(%d,%d)=%.5f\n",n,k,ans+1);  
+    return dp[n][k]=ans+1;  
+}  
+int main()  
+{  
 	freopen("in.txt", "r", stdin);
-	int n,t,i,j,f,c,mark,mx,k;
-	while(scanf("%d %d",&n,&t)!=EOF)
-	{
-		for(i=0;i<n;i++)
-		scanf("%d %d",&p[i].s,&p[i].e);
-		qsort(p,n,sizeof(p[0]),cmp);
-		if(p[0].s!=1)
-		{
-			printf("-1\n");
-            continue;
-		}
-		if(p[0].s==1&&p[0].e==t)
-		{
-			printf("1\n");
-			continue;
-		}
-		c=1;
-		f=0;
-		for(i=0;i<n;)
-		{
-			mark=0;
-			mx=p[i].e;
-			for(j=i+1;j<n;j++)
-			if(p[j].s>=p[i].s&&p[j].s<=p[i].e+1)
-			{
-				if(p[j].e>mx)
-				{
-					mx=p[j].e;
-					k=j;
-					mark=1;
-				}
-			}
-			if(mark)
-			{
-				i=k;
-				c++;
-			}
-			else
-				break;
-			if(p[i].e==t)
-			{
-				f=1;
-				break;
-			}
-		}
-		if(f)
-			printf("%d\n",c);
-		else
-			printf("-1\n");
-	}
-	return 1;
-}
+    memset(dp,0,sizeof(dp));  
+    scanf("%d%d",&N,&K);  
+    printf("%.5lf\n",f(N,K));  
+    return 0;  
+} 

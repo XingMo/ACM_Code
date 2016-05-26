@@ -1,3 +1,16 @@
+/*
+POJ - 3190
+给定若干个区间，问至少要分成几组
+使得同组的区间互不重叠
+
+典型的区间贪心问题
+贪心的策略就是对左端点排序，然后依次选择安排
+记录一下每个隔间最右端点的位置，然后用最小堆维护一下
+当前区间尽可能地放到最右点最小的组里
+如果这组依旧放不进去，就没有隔间能放得进去了
+所以就要为其申请一个新的隔间
+否则就把它安排到这个隔间里，并且更新此隔间最右端点
+*/
 #pragma comment(linker, "/STACK:102400000,102400000")
 #include <cstdio>
 #include <iostream>
@@ -51,6 +64,7 @@ int main()
 		{
 			intv now=pq.top();
 			int end = -now.l;
+			//能安排
 			if(inpt[i].l > end)
 			{
 				pq.pop();
@@ -58,6 +72,7 @@ int main()
 				pq.push(now);
 				ans[ inpt[i].id ]=now.id;
 			}
+			//申请新隔间
 			else
 			{
 				ncnt++;
