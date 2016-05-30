@@ -18,10 +18,11 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) (a*a)
 
-const int maxn=1e6+10;
-int N;
-int inpt[2*maxn];
-int psum[2*maxn];
+const int maxn=1e3+10;
+const DBL eps=1e-7;
+int R,C;
+DBL inpt[maxn][maxn][3];
+DBL dp[maxn][maxn];
 
 int main()
 {
@@ -30,28 +31,25 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	scanf("%d", &N);
-	for(int i=1; i<=N; i++)
+	while(~scanf("%d%d", &R, &C))
 	{
-		scanf("%d", &inpt[i]);
-		inpt[i+N]=inpt[i];
-	}
-	for(int i=1; i<=2*N; i++) psum[i]=psum[i-1]+inpt[i];
-	int ans=0;
-	for(int i=1; i<=N; i++)
-	{
-		bool ok=1;
-		for(int j=i; j-i+1<=N; j++)
+		for(int i=1; i<=R; i++) for(int j=1; j<=C; j++) for(int k=0; k<3; k++)
 		{
-			if(psum[j]-psum[i-1]<0){ok=0; break;}
+			scanf("%lf", &inpt[i][j][k]);
 		}
-		if(ok)
+		CLR(dp);
+		for(int i=R; i>0; i--)
 		{
-			ans++;
-			printf("%d %d\n", i, i+N-1);
+			for(int j=C; j>0; j--)
+			{
+				if(i==R&&j==C) continue;
+				DBL *prob=inpt[i][j];
+				if(1.0-prob[0]<eps) dp[i][j]=1e9;
+				else dp[i][j] = ( dp[i][j+1]*prob[1] + dp[i+1][j]*prob[2] + 2 )/( 1.0-prob[0] );
+			}
 		}
+		printf("%.3f\n", dp[1][1]);
 	}
-	printf("%d\n", ans);
 	return 0;
 }
 
