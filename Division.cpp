@@ -18,13 +18,13 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) (a*a)
 
-const int maxn=1e3+10, maxm=1e4+10;
+const int maxn=5e3+10, maxm=1e5+10;
 struct Graph
 {
 	int V,E;
-	int ndn,edn, *last;
-	int *u, *v , *nxt;
-	Graph(int tv,int te):V(tv),E(te)
+	int ndn, edn, *last;
+	int *u, *v, *nxt;
+	Graph(int a, int b):V(a),E(b)
 	{
 		last=new int[V];
 		u=new int[E]; v=new int[E]; nxt=new int[E];
@@ -32,15 +32,16 @@ struct Graph
 	~Graph()
 	{
 		delete []last;
-		delete []u; delete []v; delete []nxt;
+		delete []u;delete []v;delete []nxt;
 	}
 	void init(int n){ndn=n; edn=0; memset(last,-1,sizeof(int)*V);}
 	void adde(int tu, int tv)
 	{
-		u[edn]=tu; v[edn]=tv;
-		nxt[edn]=last[tu];
-		last[tu]=edn++;
+		u[edn] = tu; v[edn] = tv;
+		nxt[edn] = last[tu];
+		last[tu] = edn++;
 	}
+	void pri(){for(int i=0; i<edn; i++) printf("%d->%d\n", u[i], v[i]);}
 };
 
 struct Tarjan
@@ -50,7 +51,7 @@ struct Tarjan
 	int scc_cnt, scc[maxn];
 	int skt, stak[maxn];
 	bool ins[maxn];
-	Tarjan(Graph &a):G(a){};
+	Tarjan(Graph &g):G(g){};
 	int SCC();
 	int dfs(int);
 };
@@ -66,13 +67,9 @@ struct Hungarian
 };
 
 int N,M;
-Graph G(maxn,maxm), div_g(2*maxn,maxn*maxn);
-vector<int> reach[maxn];
-
-Tarjan tarjan(G);
-Hungarian hung(div_g);
-
-int construct(int);
+Graph graph(maxn,maxm), div_g(2*maxn,maxm);
+Tarjan tarjan(graph);
+Hungarian hug(div_g);
 
 int main()
 {
@@ -86,43 +83,25 @@ int main()
 	for(int ck=1; ck<=T; ck++)
 	{
 		scanf("%d%d", &N, &M);
-		
-		G.init(N);
+		graph.init(N);
 		for(int i=0; i<M; i++)
 		{
 			int u,v;
 			scanf("%d%d", &u, &v);
-			G.adde(u,v);
+			graph.adde(u,v);
 		}
 		tarjan.SCC();
 		
-		div_g.init(2*G.ndn);
-		for(int i=1; i<=G.ndn; i++) reach[i].clear();
-		for(int i=1; i<=G.ndn; i++) if(!reach[i].size()) construct(i);
-		
-		printf("Case %d: %d \n", ck, G.ndn-hung.solve());
+		div_g.init(2*graph.ndn);
+		for(int i=0; i<graph.edn; i++)
+		{
+			int u=graph.u[i], v=graph.v[i];
+			div_g.adde(u,v+graph.ndn);
+		}
+//		div_g.pri();
+		int mcnt = hug.solve();
+		printf("%d\n", graph.ndn-mcnt);
 	}
-	return 0;
-}
-
-int construct(int u)
-{
-	for(int e=G.last[u]; ~e; e=G.nxt[e])
-	{
-		int v=G.v[e];
-		if(!reach[v].size()) construct(v);
-		for(int i=0; i<(int)reach[v].size(); i++) reach[u].push_back(reach[v][i]);
-	}
-	
-	sort(reach[u].begin(),reach[u].end());
-	vector<int>::iterator iter = unique(reach[u].begin(), reach[u].end());
-	reach[u].erase(iter, reach[u].end());
-	
-	for(int i=0; i<(int)reach[u].size(); i++) 
-	{
-		div_g.adde(u, reach[u][i]+G.ndn);
-	}
-	reach[u].push_back(u);
 	return 0;
 }
 
@@ -134,7 +113,6 @@ int Tarjan::SCC()
 	
 	for(int i=1; i<=G.ndn; i++) if(!dfsn[i]) dfs(i);
 	
-	// graph re-construct
 	int tot=G.edn;
 	G.init(scc_cnt);
 	for(int e=0; e<tot; e++)
