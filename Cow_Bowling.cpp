@@ -5,7 +5,6 @@
 #include <cstring>
 #include <algorithm>
 #include <cmath>
-#include <cctype>
 #include <map>
 #include <set>
 #include <queue>
@@ -19,7 +18,10 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) ((a)*(a))
 
-
+const int maxn=350+10;
+int N;
+int inpt[maxn];
+int dp[maxn];
 
 int main()
 {
@@ -28,6 +30,19 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	
+	while(~scanf("%d", &N))
+	{
+		CLR(inpt); CLR(dp);
+		for(int i=0; i<N; i++)
+		{
+			for(int j=0; j<=i; j++) scanf("%d", &inpt[j]);
+			for(int j=i; j>0; j--) dp[j]=max(dp[j], dp[j-1])+inpt[j];
+			dp[0]+=inpt[0];
+		}
+		int ans=0;
+		for(int i=0; i<N; i++) ans=max(ans, dp[i]);
+		printf("%d\n", ans);
+	}
 	return 0;
 }
+
