@@ -1,3 +1,9 @@
+/*
+SCU - 4528
+求图中桥边的数量
+
+Tarjan求桥边，贴板子就好了
+*/
 #pragma comment(linker, "/STACK:102400000,102400000")
 #include <cstdio>
 #include <iostream>

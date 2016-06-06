@@ -1,3 +1,14 @@
+/*
+SCU - 4521
+若干个窗口覆盖一个桌面，窗口可以互相遮挡
+窗口有固定标号，固定大小和固定位置
+给出一个状态，问是否合法
+
+奇妙的建图姿势我不会，所以我是暴力做的
+枚举 1到 9的全排列，表示窗口的叠放次序
+然后逐个check一下就好了
+时间复杂度 O(n!*n^2)
+*/
 #pragma comment(linker, "/STACK:102400000,102400000")
 #include <cstdio>
 #include <iostream>
@@ -26,7 +37,6 @@ char Map[4][4];
 
 bool check();
 bool cut(int);
-void pause(){fflush(stdin);getchar();}
 
 int main()
 {

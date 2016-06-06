@@ -1,57 +1,59 @@
-#pragma comment(linker, "/STACK:102400000,102400000")
 #include <cstdio>
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include <algorithm>
-#include <cmath>
-#include <map>
-#include <set>
-#include <queue>
-using namespace std;
-typedef pair<int,int> Pii;
-typedef long long LL;
-typedef unsigned long long ULL;
-typedef double DBL;
-typedef long double LDBL;
-#define MST(a,b) memset(a,b,sizeof(a))
-#define CLR(a) MST(a,0)
-#define Sqr(a) (a*a)
-
-const int maxn=1e6+10;
-int N;
-int inpt[2*maxn];
-int psum[2*maxn];
-
-int main()
-{
-	#ifdef LOCAL
-	freopen("in.txt", "r", stdin);
-//	freopen("out.txt", "w", stdout);
-	#endif
-	
-	scanf("%d", &N);
-	for(int i=1; i<=N; i++)
-	{
-		scanf("%d", &inpt[i]);
-		inpt[i+N]=inpt[i];
-	}
-	for(int i=1; i<=2*N; i++) psum[i]=psum[i-1]+inpt[i];
-	int ans=0;
-	for(int i=1; i<=N; i++)
-	{
-		bool ok=1;
-		for(int j=i; j-i+1<=N; j++)
-		{
-			if(psum[j]-psum[i-1]<0){ok=0; break;}
-		}
-		if(ok)
-		{
-			ans++;
-			printf("%d %d\n", i, i+N-1);
-		}
-	}
-	printf("%d\n", ans);
-	return 0;
-}
-
+using namespace std;  
+int unin[50005]={0};  
+int eval[50005]={0};  
+int n;  
+void init()  
+{  
+    for(int i=1;i<=n;i++)  
+    {  
+        unin[i]=i; eval[i]=0;  
+    }  
+}  
+int find(int x)  
+{  
+    if(x==unin[x])  return x;  
+    int ox = unin[x];  
+    unin[x]=find(unin[x]);  
+    eval[x]=(eval[x]+eval[ox])%3;
+    return unin[x];  
+}  
+void join(int opt,int x,int y)  
+{  
+    int fx,fy;  
+    fx=find(x); fy=find(y);  
+    if(fx==fy) return;  
+    unin[fx]=fy;  
+    eval[fx]=(eval[y]+opt-eval[x]+3)%3;
+    return;
+}  
+int judge(int opt,int x,int y)  
+{  
+    int fx,fy,r;  
+    if(x>n || y>n || ((x==y)&&(opt==1)) )  
+        return 0;
+    fx=find(x); fy=find(y);  
+    if(fx!=fy)  return 1;
+    else  
+    {  
+    	if(eval[x]==(opt+eval[y])%3) return 1;
+		else  return 0;  
+	}  
+}  
+int main()  
+{  
+    int k,i,x,y,d; int ans=0;  
+    scanf("%d%d",&n,&k);  
+    init();  
+    for(i=1;i<=k;i++)  
+    {  
+        scanf("%d%d%d",&d,&x,&y);  
+        d--;
+        if( !judge(d,x,y) )  
+            ans++;  
+        else  
+            join(d,x,y);  
+    }  
+    printf("%d\n",ans);  
+    return 0;  
+}  
