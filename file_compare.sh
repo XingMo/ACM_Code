@@ -4,8 +4,10 @@ while true
 do
 clear
 ./dataGen
-./std < in.txt > stdout.txt
-time ./Dynamic_Inversion < in.txt > out.txt
+echo 'std'
+time ./std < in.txt > stdout.txt
+echo 'my'
+time ./组队方案数 < in.txt > out.txt
 diff out.txt stdout.txt
 #echo $mege
 echo '---'

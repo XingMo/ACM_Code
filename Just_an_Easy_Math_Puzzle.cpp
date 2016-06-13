@@ -19,10 +19,38 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) ((a)*(a))
 
-const int maxn=1e5+10;
-int N,K;
-int inpt[maxn];
-LL ans;
+const LL MOD=1000000007;
+LL exgcd(LL a, LL b, LL &x, LL &y)
+{
+	if(!b) {x=1; y=0; return a;}
+	else
+	{
+		LL d=exgcd(b, a%b, y, x);
+		y -= x*(a/b);
+		return d;
+	}
+}
+
+LL mod_inv(LL a, LL mod)
+{
+	LL d,x,y;
+	d = exgcd(a, mod, x, y);
+	return d==1? (x+mod)%mod : -1;
+}
+
+LL sPow(LL num, LL tim, LL mod)
+{
+	LL res=1;
+	while(tim)
+	{
+		if(tim&1) res=(LL)res*num%mod;
+		num=(LL)num*num%MOD;
+		tim>>=1;
+	}
+	return res;
+}
+
+LL K;
 
 int main()
 {
@@ -31,26 +59,11 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	int T;
-	scanf("%d", &T);
-	for(int ck=1; ck<=T; ck++)
+	LL tinv=mod_inv(2016, MOD);
+	while(~scanf("%lld", &K))
 	{
-		scanf("%d%d", &N, &K);
-		for(int i=0; i<N; i++) scanf("%d", &inpt[i]);
-		ans=0;
-		for(int i=0; i<N; i++)
-		{
-			if(inpt[i]%(K*K)) continue;
-			int d=inpt[i]/K;
-			for(int j=i-1; j>=0; j--)
-			{
-				if(inpt[j]!=d) continue;
-				for(int k=j-1; k>=0; k--)
-				{
-					if(inpt[k]==d/K) ans++;
-				}
-			}
-		}
+		LL ans = (sPow(2,K,MOD)-sPow(2,K,2016))%MOD*tinv%MOD;
+		ans = (ans+MOD)%MOD;
 		printf("%lld\n", ans);
 	}
 	return 0;

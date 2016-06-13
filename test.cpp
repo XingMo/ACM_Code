@@ -1,131 +1,101 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+//
+//  Created by  CQU_CST_WuErli
+//  Copyright (c) 2016 CQU_CST_WuErli. All rights reserved.
+//
+//#pragma comment(linker, "/STACK:102400000,102400000")
+#include <iostream>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <cctype>
+#include <cmath>
+#include <string>
+#include <vector>
+#include <map>
+#include <queue>
+#include <stack>
+#include <set>
+#include <algorithm>
+#include <sstream>
+#define CLR(x) memset(x,0,sizeof(x))
+#define OFF(x) memset(x,-1,sizeof(x))
+#define MEM(x,a) memset((x),(a),sizeof(x))
+#define BUG cout << "I am here" << endl
+#define lookln(x) cout << #x << "=" << x << endl
+#define SI(a) scanf("%d", &a)
+#define SII(a,b) scanf("%d%d", &a, &b)
+#define SIII(a,b,c) scanf("%d%d%d", &a, &b, &c)
+const int INF_INT=0x3f3f3f3f;
+const long long INF_LL=0x7f7f7f7f;
+const long long MOD = 72807249;
+const double eps=1e-10;
+const double pi=acos(-1);
+typedef long long  ll;
+using namespace std;
 
-typedef struct {
-	size_t width;
-	size_t height;
-	unsigned char *data;
-} Image;
-
-static Image * image_new (size_t width,size_t height)
+int n;
+struct Q
 {
-	Image *image;
+	int op;
+	ll b;
+	Q(int a, ll aa):op(a), b(aa) {}
+	Q() {}
+};
+vector<Q> q;
+ll sum[200020 * 6];
 
-	image = (Image*)malloc (sizeof *image);
-	image->width = width;
-	image->height = height;
-	image->data = (unsigned char*)malloc (width * height);
-
-	return image;
+void push_up(int rt) {
+	sum[rt] = sum[rt << 1] * sum[rt << 1 | 1] % MOD;
 }
 
-static void image_free (Image *image)
-{
-	free (image->data);
-	free (image);
-}
-
-static void image_fill (Image *image,unsigned char value)
-{
-	memset (image->data, value, image->width * image->height);
-}
-
-/**
-* image_set_pixel:
-*
-* Sets a pixel passed in signed (x, y) coordinates, where (0,0) is at
-* the center of the image.
-**/
-static void image_set_pixel (Image *image, ssize_t x, ssize_t y, unsigned char value)
-{
-	size_t tx, ty;
-	unsigned char *p;
-
-	tx = (image->width / 2) + x;
-	ty = (image->height / 2) + y;
-
-	p = image->data + (ty * image->width) + tx;
-
-	*p = value;
-}
-
-static void image_save (const Image *image, const char *filename)
-{
-	FILE *out;
-
-	out = fopen (filename, "wb");
-	if (!out) return;
-
-	fprintf (out, "P5\n");
-	fprintf (out, "%zu %zu\n", image->width, image->height);
-	fprintf (out, "255\n");
-
-	fwrite (image->data, 1, image->width * image->height, out);
-
-	fclose (out);
-}
-
-static void draw_Taijitu(Image *image,int radius,int value)
-{
-	int x,y;
-	int rlimit ,llimit;
-
-	int radius_2 = radius*radius;
-	for(y = -radius;y<radius;y++)
-		for(x= -radius;x<radius;x++)
-			if(x*x+y*y <= radius_2)
-				image_set_pixel(image,x,y,0xff);
-
-	for(y = -radius;y<0;y++)
-		for(x = 0;x<radius;x++)
-			if((x*x)+(y*y) <= radius_2)
-				image_set_pixel(image,x,y,value);
-
-	for(y = -radius;y<0;y++)
-		for(x = -(int)sqrt((double)(-radius*y-y*y));x<0;x++)
-			image_set_pixel(image,x,y,value);
-
-
-	for(y = 0;y<radius;y++)
-	{
-		llimit = (int)sqrt((double)(radius*y - y*y));
-		rlimit = (int)sqrt((double)(radius_2 - y*y));
-		for(x = llimit;x<rlimit;x++) 
-			image_set_pixel(image,x,y,value);
+void build(int l, int r, int rt) {
+	sum[rt] = 1;
+	if (l == r) {
+		return;
 	}
-
-	for(y = 2*radius/6;y<4*radius/6;y++)
-	{
-		rlimit =(int) sqrt((double)(radius*y-y*y-2*radius_2/9));
-		llimit = -rlimit;
-
-		for(x = llimit;x<rlimit;x++) 
-			image_set_pixel(image,x,y,value);
-	}
-
-	for(y = -4*radius/6;y<-2*radius/6;y++)
-	{
-		rlimit = sqrt(-radius*y-y*y-2*radius_2/9);
-		llimit = -rlimit;
-		for(x = llimit;x<rlimit;x++) 
-			image_set_pixel(image,x,y,0xff);
-	}
-
-	return;
+	int mid = (l + r) >> 1;
+	build(l, mid, rt << 1);
+	build(mid + 1, r, rt << 1 | 1);
+	push_up(rt);
 }
-int main (int argc, char *argv[])
-{
-	Image *image;
 
-	image = image_new (800, 800);
+void change(int o, ll v, int l, int r, int rt) {
+	if (l == r) {
+		sum[rt] = v % MOD;
+		return;
+	}
+	int mid = (l + r) >> 1;
+	if (o <= mid) change(o, v, l, mid, rt << 1);
+	else change(o, v, mid + 1, r, rt << 1 | 1);
+	push_up(rt);
+}
 
-	image_fill (image, 0xaa);
-	draw_Taijitu (image, 300, 0);
-	image_save (image, "taiji_6.pgm");
 
-	image_free (image);
-
+int main(int argc, char const *argv[]) {
+#ifdef LOCAL
+    freopen("C:\\Users\\john\\Desktop\\in.txt","r",stdin);
+    // freopen("C:\\Users\\john\\Desktop\\out.txt","w",stdout);
+#endif
+    int t; SI(t);
+    while(t--) {
+        SI(n);
+        build(1, n, 1);
+        int pos = 0;
+        // BUG;
+        for (int i = 1; i <= n; i++) {
+        	int op;
+        	SI(op);
+        	if (op == 1) {
+        		ll num; scanf("%lld", &num);
+        		pos++;
+        		change(pos, num, 1, n, 1);
+        	}
+        	else {
+        		int cnt; SI(cnt);
+        		change(cnt, 1LL, 1, n, 1);
+        	}
+        	printf("%lld\n", sum[1] % MOD);
+        }
+    }
 	return 0;
 }

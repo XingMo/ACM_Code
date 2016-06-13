@@ -20,9 +20,26 @@ typedef long double LDBL;
 #define Sqr(a) ((a)*(a))
 
 const int maxn=1e5+10;
+struct Discrete
+{
+	int siz, arry[maxn];
+	void add(int n){arry[siz++]=n;}
+	void init()
+	{
+		sort(arry, arry+siz);
+		siz = unique(arry, arry+siz)-arry;
+	}
+	int id(int n)
+	{
+		int p=lower_bound(arry, arry+siz, n)-arry;
+		if(p==siz || arry[p]!=n) return -1;
+		return p;
+	}
+};
 int N,K;
 int inpt[maxn];
-LL ans;
+LL dp[maxn][3];
+Discrete D;
 
 int main()
 {
@@ -35,22 +52,25 @@ int main()
 	scanf("%d", &T);
 	for(int ck=1; ck<=T; ck++)
 	{
+		D.siz=0;
 		scanf("%d%d", &N, &K);
-		for(int i=0; i<N; i++) scanf("%d", &inpt[i]);
-		ans=0;
 		for(int i=0; i<N; i++)
 		{
-			if(inpt[i]%(K*K)) continue;
-			int d=inpt[i]/K;
-			for(int j=i-1; j>=0; j--)
-			{
-				if(inpt[j]!=d) continue;
-				for(int k=j-1; k>=0; k--)
-				{
-					if(inpt[k]==d/K) ans++;
-				}
-			}
+			scanf("%d", &inpt[i]);
+			D.add(inpt[i]);
 		}
+		D.init();
+		CLR(dp);
+		for(int i=0; i<N; i++)
+		{
+			int id=D.id(inpt[i]);
+			int id1=D.id(inpt[i]/K);
+			if(id1!=-1 && inpt[i]%K==0) dp[id][2] += dp[id1][1];
+			if(id1!=-1 && inpt[i]%K==0) dp[id][1] += dp[id1][0];
+			dp[id][0]++;
+		}
+		LL ans=0;
+		for(int i=0; i<D.siz; i++) ans += dp[i][2];
 		printf("%lld\n", ans);
 	}
 	return 0;

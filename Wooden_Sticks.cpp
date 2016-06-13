@@ -19,11 +19,10 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) ((a)*(a))
 
-const int maxn=1e5+10;
-int N,K;
-int inpt[maxn];
-LL ans;
-
+const int maxn=5e3+10;
+int N;
+Pii inpt[maxn];
+bool vis[maxn];
 int main()
 {
 	#ifdef LOCAL
@@ -35,23 +34,29 @@ int main()
 	scanf("%d", &T);
 	for(int ck=1; ck<=T; ck++)
 	{
-		scanf("%d%d", &N, &K);
-		for(int i=0; i<N; i++) scanf("%d", &inpt[i]);
-		ans=0;
+		scanf("%d", &N);
 		for(int i=0; i<N; i++)
 		{
-			if(inpt[i]%(K*K)) continue;
-			int d=inpt[i]/K;
-			for(int j=i-1; j>=0; j--)
+			scanf("%d%d", &inpt[i].first, &inpt[i].second);
+		}
+		sort(inpt, inpt+N);
+		int ans=0;
+		CLR(vis);
+		for(int i=0; i<N; i++)
+		{
+			if(vis[i]) continue;
+			ans++;
+			int high=inpt[i].second;
+			for(int j=i; j<N; j++)
 			{
-				if(inpt[j]!=d) continue;
-				for(int k=j-1; k>=0; k--)
+				if(!vis[j] && inpt[j].second >= high)
 				{
-					if(inpt[k]==d/K) ans++;
+					vis[j]=1;
+					high = inpt[j].second;
 				}
 			}
 		}
-		printf("%lld\n", ans);
+		printf("%d\n", ans);
 	}
 	return 0;
 }
