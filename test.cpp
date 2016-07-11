@@ -1,101 +1,93 @@
-//
-//  Created by  CQU_CST_WuErli
-//  Copyright (c) 2016 CQU_CST_WuErli. All rights reserved.
-//
-//#pragma comment(linker, "/STACK:102400000,102400000")
-#include <iostream>
 #include <cstring>
-#include <cstdio>
-#include <cstdlib>
-#include <cctype>
-#include <cmath>
-#include <string>
-#include <vector>
-#include <map>
-#include <queue>
-#include <stack>
-#include <set>
-#include <algorithm>
-#include <sstream>
-#define CLR(x) memset(x,0,sizeof(x))
-#define OFF(x) memset(x,-1,sizeof(x))
-#define MEM(x,a) memset((x),(a),sizeof(x))
-#define BUG cout << "I am here" << endl
-#define lookln(x) cout << #x << "=" << x << endl
-#define SI(a) scanf("%d", &a)
-#define SII(a,b) scanf("%d%d", &a, &b)
-#define SIII(a,b,c) scanf("%d%d%d", &a, &b, &c)
-const int INF_INT=0x3f3f3f3f;
-const long long INF_LL=0x7f7f7f7f;
-const long long MOD = 72807249;
-const double eps=1e-10;
-const double pi=acos(-1);
-typedef long long  ll;
+#include <iostream>
 using namespace std;
-
-int n;
-struct Q
+ 
+//    实现代码
+template <int N>    //表示可用区间为[0,N)，其中N必须是2的幂数
+class PointTree
 {
-	int op;
-	ll b;
-	Q(int a, ll aa):op(a), b(aa) {}
-	Q() {}
+public:
+    PointTree()
+    {
+        clear();
+        size = 0;
+    }
+    ~PointTree() {};
+    void clear()
+    {
+        memset(this, 0, sizeof(*this));
+    }
+    void add(int n)
+    {
+        int i = N + n;
+        ++size;
+        for (++a[i]; i > 1; i /= 2)
+            if (~i & 1)
+                a[i / 2]++;
+    }
+    int cntLs(int n)
+    {
+        //统计小于
+        int c = 0;
+        //若统计小于等于则c=a;
+        for (int i = N + n; i>1; i /= 2)
+            if (i & 1)
+                c += a[i / 2];
+        return c;
+    }
+    int cntGt(int n)
+    {
+        return size - a[N + n] - cntLs(n);
+    }
+    void del(int n)
+    {
+        if (!a[n += N])
+            return;
+        --size;
+        for (--a[n]; n > 1; n /= 2)
+            if (~n & 1)
+                --a[n / 2];
+    }
+    /*    解决：求点集中第i小的数（由0数起）
+    *    注意：如果i>=size返回N-1
+    */
+    int operator[](int n)    //下标从0开始
+    {
+        int i = 1;
+        while (i < N)
+        {
+            if (n < a[i])
+                i *= 2;
+            else n -= a[i], i = i * 2 + 1;
+        }
+        return i - N;
+    }
+private:
+    int a[2 * N];
+    int size;
 };
-vector<Q> q;
-ll sum[200020 * 6];
-
-void push_up(int rt) {
-	sum[rt] = sum[rt << 1] * sum[rt << 1 | 1] % MOD;
-}
-
-void build(int l, int r, int rt) {
-	sum[rt] = 1;
-	if (l == r) {
-		return;
-	}
-	int mid = (l + r) >> 1;
-	build(l, mid, rt << 1);
-	build(mid + 1, r, rt << 1 | 1);
-	push_up(rt);
-}
-
-void change(int o, ll v, int l, int r, int rt) {
-	if (l == r) {
-		sum[rt] = v % MOD;
-		return;
-	}
-	int mid = (l + r) >> 1;
-	if (o <= mid) change(o, v, l, mid, rt << 1);
-	else change(o, v, mid + 1, r, rt << 1 | 1);
-	push_up(rt);
-}
-
-
-int main(int argc, char const *argv[]) {
-#ifdef LOCAL
-    freopen("C:\\Users\\john\\Desktop\\in.txt","r",stdin);
-    // freopen("C:\\Users\\john\\Desktop\\out.txt","w",stdout);
-#endif
-    int t; SI(t);
-    while(t--) {
-        SI(n);
-        build(1, n, 1);
-        int pos = 0;
-        // BUG;
-        for (int i = 1; i <= n; i++) {
-        	int op;
-        	SI(op);
-        	if (op == 1) {
-        		ll num; scanf("%lld", &num);
-        		pos++;
-        		change(pos, num, 1, n, 1);
-        	}
-        	else {
-        		int cnt; SI(cnt);
-        		change(cnt, 1LL, 1, n, 1);
-        	}
-        	printf("%lld\n", sum[1] % MOD);
+ 
+PointTree<8192> t;
+ 
+//    测试程序
+int main(int argc, char const *argv[])
+{
+    char c;
+    int n;
+    while(cin >> c)
+    {
+        if(c == 'c')
+            t.clear();
+        else
+        {
+            cin >> n;
+            if(c == 'a')
+                t.add(n);
+            if(c == 'd')
+                t.del(n);
+            if(c == 'q')
+                cout << t[n] << endl;
         }
     }
-	return 0;
+    return 0;
 }

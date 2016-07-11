@@ -19,6 +19,9 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) (a*a)
 
+const int maxn=1e5+10;
+int inpt[maxn];
+
 int main()
 {
 	freopen("in.txt", "w", stdout);
@@ -28,20 +31,30 @@ int main()
 	printf("%d\n", T);
 	for(int ck=1; ck<=T; ck++)
 	{
-		int N=1e5, M=1e5;
-		int col=500;
+		int N=10000, M=20000, MOD=100;
 		printf("%d %d\n", N, M);
-		for(int i=1; i<=N; i++) printf("%d ", rand()%col); puts("");
-		for(int i=1; i<=N; i++)
+		for(int i=2; i<=N; i++)
 		{
-			int l=0, r=-1;
-			while(l>=r)
+			int u=rand()%(i-1)+1;
+			printf("%d %d %d\n", u, i, rand()%MOD+1);
+		}
+		for(int i=0; i<M; i++)
+		{
+			int opt=rand()%3+1,a,b;
+			if(opt==1)
 			{
-				l=rand()%N;
-				r=rand()%N;
+				printf("%d %d %d\n", opt, rand()%(N-1)+1, rand()%MOD);
 			}
-			int opt=rand()%2+1, val=rand()%col;
-			printf("%d %d %d %d\n", opt, l, r, val);
+			else
+			{
+				a=0,b=0;
+				while(a==b)
+				{
+					a=rand()%N+1;
+					b=rand()%N+1;
+				}
+				printf("%d %d %d\n", opt, a, b);
+			}
 		}
 	}
 	return 0;

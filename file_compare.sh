@@ -7,8 +7,8 @@ clear
 echo 'std'
 time ./std < in.txt > stdout.txt
 echo 'my'
-time ./组队方案数 < in.txt > out.txt
-diff out.txt stdout.txt
+time ./这是一颗普通的树 < in.txt > out.txt
+diff stdout.txt out.txt
 #echo $mege
 echo '---'
 read

@@ -20,12 +20,6 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) ((a)*(a))
 
-void sleep(int s)
-{
-	int nt=time(0);
-	while(time(0)<nt+s);
-}
-
 const int maxn=1e5+10;
 struct data
 {
@@ -42,7 +36,7 @@ struct Discrete
 	}
 	int id(int n)
 	{
-		int p = lower_bound(ais, ais+siz, n) - ais;
+		int p = lower_bound(ais, ais+siz, n) - ais + 1;
 //		if(p>=siz || ais[p]!=n) return -1;
 		return p;
 	}
@@ -65,7 +59,7 @@ struct BIT
 
 int Q;
 data arry[maxn], temp[maxn];
-int inpt[maxn][2];
+int inpt[maxn][3];
 int ans[maxn];
 BIT bit;
 Discrete D;
@@ -90,23 +84,25 @@ int main()
 		int scnt=0;
 		for(int i=1; i<=Q; i++)
 		{
-			int opt,l;
+			int opt,l,r;
 			scanf("%d%d", &opt, &l);
 			arry[i].t=i;
 			if(!opt)
 			{
+				scanf("%d", &r);
 				scnt++;
 				inpt[scnt][0] = l;
-				inpt[scnt][1] = i;
+				inpt[scnt][1] = r;
+				inpt[scnt][2] = i;
 				arry[i].l = l;
-				arry[i].r = l+scnt;
+				arry[i].r = r;
 				arry[i].v = 1;
-				D.add(l); D.add(l+scnt);
+				D.add(l); D.add(r);
 			}
 			else
 			{
 				arry[i].l = inpt[l][0];
-				arry[i].r = inpt[l][0] + l;
+				arry[i].r = inpt[l][1];
 				arry[i].v = -1;
 			}
 		}
@@ -120,7 +116,7 @@ int main()
 		
 		CDQ(1,Q);
 		
-		for(int i=1; i<=scnt; i++) printf("%d\n", ans[ inpt[i][1] ]);
+		for(int i=1; i<=scnt; i++) printf("%d\n", ans[ inpt[i][2] ]);
 	}
 	return 0;
 }
