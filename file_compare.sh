@@ -1,16 +1,15 @@
 #!/bin/bash
-msge=""
 while true
 do
-clear
+#clear
 ./dataGen
 echo 'std'
 time ./std < in.txt > stdout.txt
 echo 'my'
-time ./这是一颗普通的树 < in.txt > out.txt
-diff stdout.txt out.txt
-#echo $mege
+time ./Palindrome_Bo < in.txt > out.txt
+if ! diff stdout.txt out.txt; then
+	break
+fi
 echo '---'
-read
+#read
 done
-

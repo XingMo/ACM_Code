@@ -1,93 +1,65 @@
-#include <cstring>
+#pragma comment(linker, "/STACK:102400000,102400000")
+#include <cstdio>
 #include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
+#include <cmath>
+#include <cctype>
+#include <map>
+#include <set>
+#include <queue>
+#include <bitset>
+#include <string>
+#include <ctime>
 using namespace std;
- 
-//    实现代码
-template <int N>    //表示可用区间为[0,N)，其中N必须是2的幂数
-class PointTree
+typedef pair<int,int> Pii;
+typedef long long LL;
+typedef unsigned long long ULL;
+typedef double DBL;
+typedef long double LDBL;
+#define MST(a,b) memset(a,b,sizeof(a))
+#define CLR(a) MST(a,0)
+#define SQR(a) ((a)*(a))
+#define PCUT puts("----------")
+
+const int maxn=1e7+10, MOD=1e9+7;
+int A[maxn];
+
+int main()
 {
-public:
-    PointTree()
-    {
-        clear();
-        size = 0;
-    }
-    ~PointTree() {};
-    void clear()
-    {
-        memset(this, 0, sizeof(*this));
-    }
-    void add(int n)
-    {
-        int i = N + n;
-        ++size;
-        for (++a[i]; i > 1; i /= 2)
-            if (~i & 1)
-                a[i / 2]++;
-    }
-    int cntLs(int n)
-    {
-        //统计小于
-        int c = 0;
-        //若统计小于等于则c=a;
-        for (int i = N + n; i>1; i /= 2)
-            if (i & 1)
-                c += a[i / 2];
-        return c;
-    }
-    int cntGt(int n)
-    {
-        return size - a[N + n] - cntLs(n);
-    }
-    void del(int n)
-    {
-        if (!a[n += N])
-            return;
-        --size;
-        for (--a[n]; n > 1; n /= 2)
-            if (~n & 1)
-                --a[n / 2];
-    }
-    /*    解决：求点集中第i小的数（由0数起）
-    *    注意：如果i>=size返回N-1
-    */
-    int operator[](int n)    //下标从0开始
-    {
-        int i = 1;
-        while (i < N)
-        {
-            if (n < a[i])
-                i *= 2;
-            else n -= a[i], i = i * 2 + 1;
-        }
-        return i - N;
-    }
-private:
-    int a[2 * N];
-    int size;
-};
- 
-PointTree<8192> t;
- 
-//    测试程序
-int main(int argc, char const *argv[])
-{
-    char c;
-    int n;
-    while(cin >> c)
-    {
-        if(c == 'c')
-            t.clear();
-        else
-        {
-            cin >> n;
-            if(c == 'a')
-                t.add(n);
-            if(c == 'd')
-                t.del(n);
-            if(c == 'q')
-                cout << t[n] << endl;
-        }
-    }
-    return 0;
+	#ifdef LOCAL
+//	freopen("in.txt", "r", stdin);
+//	freopen("out.txt", "w", stdout);
+	#endif
+	
+	srand(time(0));
+	int T, N, nt;
+	scanf("%d %d", &T, &N);
+	N = min(N,maxn);
+	for(int i=0; i<N; i++) A[i] = rand()%MOD;
+	
+	LL ans;
+	
+	nt=clock();
+	for(int ck=1; ck<=T; ck++)
+	{
+		ans = 0;
+		for(int i=0; i<N; i++) ans = (ans+A[i])%MOD;
+	}
+	printf("%lld\n", ans);
+	printf("time = %.3f\n", (DBL)(clock()-nt)/CLOCKS_PER_SEC);
+	
+	nt=clock();
+	for(int ck=1; ck<=T; ++ck)
+	{
+		ans = 0;
+		for(int i=0; i<N; ++i) ans = (ans+A[i])%MOD;
+	}
+	printf("%lld\n", ans);
+	printf("time = %.3f\n", (DBL)(clock()-nt)/CLOCKS_PER_SEC);
+	printf("time = %.3f\n", (DBL)(clock()-nt)/CLOCKS_PER_SEC);
+
+	return 0;
 }
+

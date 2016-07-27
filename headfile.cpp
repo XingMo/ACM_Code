@@ -9,6 +9,8 @@
 #include <map>
 #include <set>
 #include <queue>
+#include <bitset>
+#include <string>
 using namespace std;
 typedef pair<int,int> Pii;
 typedef long long LL;
@@ -17,8 +19,8 @@ typedef double DBL;
 typedef long double LDBL;
 #define MST(a,b) memset(a,b,sizeof(a))
 #define CLR(a) MST(a,0)
-#define Sqr(a) ((a)*(a))
-
+#define SQR(a) ((a)*(a))
+#define PCUT puts("----------")
 
 
 int main()
