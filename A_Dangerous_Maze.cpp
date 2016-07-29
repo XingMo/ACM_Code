@@ -22,24 +22,8 @@ typedef long double LDBL;
 #define SQR(a) ((a)*(a))
 #define PCUT puts("----------")
 
-LL exgcd(LL a, LL b, LL &x, LL &y)
-{
-	if(!b) {x=1; y=0; return a;}
-	LL t,res;
-	res = exgcd(b,a%b,x,y);
-	t=x, x=y, y=t-a/b*y;
-	return res;
-}
-
-LL check(LL b)
-{
-	LL lim=sqrt(b);
-	for(int i=2; i<=lim; i++)
-	{
-		if(b%i==0) return i;
-	}
-	return 0;
-}
+int gcd(int a, int b){return b?gcd(b,a%b):a;}
+int N;
 
 int main()
 {
@@ -48,15 +32,26 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	LL a=2,b=6,x,y;
-	for(int i=1; i<=100; i++)
+	int T;
+	scanf("%d", &T);
+	for(int ck=1; ck<=T; ck++)
 	{
-		do
+		scanf("%d", &N);
+		int sum=0, cnt=0;
+		for(int i=0, x; i<N; i++)
 		{
-			b=rand()%100000;
-		} while(!(a=check(b)));
-		exgcd(a,b,x,y);
-		printf("%lld %lld %lld %lld\n", a, b, x, y);	
+			scanf("%d", &x);
+			if(x<0) cnt++;
+			sum += abs(x);
+		}
+		printf("Case %d: ", ck);
+		if(cnt==N) puts("inf");
+		else
+		{
+			int d=gcd(sum, N-cnt);
+			int p=sum/d, q=(N-cnt)/d;
+			printf("%d/%d\n", p, q);
+		}
 	}
 	return 0;
 }

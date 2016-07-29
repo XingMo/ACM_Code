@@ -22,24 +22,11 @@ typedef long double LDBL;
 #define SQR(a) ((a)*(a))
 #define PCUT puts("----------")
 
-LL exgcd(LL a, LL b, LL &x, LL &y)
-{
-	if(!b) {x=1; y=0; return a;}
-	LL t,res;
-	res = exgcd(b,a%b,x,y);
-	t=x, x=y, y=t-a/b*y;
-	return res;
-}
-
-LL check(LL b)
-{
-	LL lim=sqrt(b);
-	for(int i=2; i<=lim; i++)
-	{
-		if(b%i==0) return i;
-	}
-	return 0;
-}
+const int maxc = 1e4+10;
+const DBL eps = 1e-6;
+int N;
+DBL P;
+DBL dp[maxc];
 
 int main()
 {
@@ -48,15 +35,24 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	LL a=2,b=6,x,y;
-	for(int i=1; i<=100; i++)
+	int T;
+	scanf("%d", &T);
+	for(int ck=1; ck<=T; ck++)
 	{
-		do
+		scanf("%lf%d", &P, &N);
+		CLR(dp);
+		dp[0]=1;
+		for(int i=0; i<N; i++)
 		{
-			b=rand()%100000;
-		} while(!(a=check(b)));
-		exgcd(a,b,x,y);
-		printf("%lld %lld %lld %lld\n", a, b, x, y);	
+			int m; DBL p;
+			scanf("%d%lf", &m, &p);
+			for(int j=maxc-1; j>=m; j--) dp[j] = max(dp[j], dp[j-m]*(1-p));
+		}
+		for(int i=maxc-1; i>=0; i--) if((1-dp[i]) < P || abs((1-dp[i])-P)<eps)
+		{
+			printf("Case %d: %d\n", ck, i);
+			break;
+		}
 	}
 	return 0;
 }

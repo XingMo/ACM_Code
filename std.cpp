@@ -1,115 +1,80 @@
-#pragma comment(linker, "/STACK:102400000,102400000")
-#include <vector>
-#include <list>
-#include <map>
-#include <set>
-#include <queue>
-#include <deque>
-#include <stack>
-#include <bitset>
-#include <algorithm>
-#include <functional>
-#include <numeric>
-#include <utility>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-#include <cstdio>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <cstring>
-#define LL long long
+#include<bits/stdc++.h>
 using namespace std;
-const int M = 5005, INF = 0x3f3f3f3f,mod=1e9+7;
-int dp[M][M];
-int sum[M][M];
-int A[M];
-int nxt[M][M],pre[M];
-int maxx[M],tot[M];
-void compress(int n){
-    vector<int>C;
-    for(int j=1;j<=n;j++) C.push_back(A[j]);
-    sort(C.begin(),C.end());
-    C.erase(unique(C.begin(),C.end()),C.end());
-    for(int j=1;j<=n;j++) A[j]=lower_bound(C.begin(),C.end(),A[j])-C.begin()+1;
+const int N = 105;
+const double eps = 1e-8;
+int tp[N];
+double n[N][N];
+double x[N];
+int free_x[N];
+int Gauss(int row, int col){
+    int r, c, tmax;
+    memset(x, 0, sizeof(x));
+    for(r = c = 0; r < row && c < col; c++){
+//    	printf("%d %d %d\n", r, c, (int)n[15][15]);
+        tmax = r;
+        for(int i = r+1; i < row; ++i) if( abs(n[i][c]) > abs(n[tmax][c]) ) tmax = i;
+        if(tmax != r ) for(int i = c; i < col+1; ++i) swap(n[tmax][i], n[r][i]);
+        if(abs(n[r][c] < eps)) continue;
+        for(int i = r+1; i < row; ++i){
+            if(abs(n[i][c]) <= eps) continue;
+            double tmp = n[i][c] / n[r][c];
+            for(int j = c; j < col+1; ++j){
+                n[i][j] -= n[r][j]*tmp;
+            }
+        }
+        r++;
+    }
+//    for(int i=0; i<100; i++,puts("")) for(int j=0; j<=100; j++) printf("%2d", (int)n[i][j]);
+    
+    for(int i = r-1; i >= 0; --i){
+        double tmp = n[i][col];
+        for(int j = i+1; j < col; ++j){
+            if( abs(n[i][j]) > eps){
+                tmp -= x[j]*n[i][j];
+            }
+        }
+        x[i] = tmp / n[i][i];
+    }
+    for(int i=0; i<100; i++) printf("%d ", (int)x[i]);
+//    for(int i=0; i<100; i++,puts("")) for(int j=0; j<=100; j++) printf("%2d", (int)n[i][j]);
+    return 1;
 }
 int main(){
 	freopen("in.txt", "r", stdin);
-//	freopen("stdout.txt", "w", stdout);
-    int n;
-    while(scanf("%d",&n)!=EOF){
-        memset(sum,0,sizeof(sum));
-        memset(dp,0,sizeof(dp));
-        memset(maxx,0,sizeof(maxx));
-        memset(tot,0,sizeof(tot));
-        for(int j=1;j<=n;j++) scanf("%d",&A[j]);
-        compress(n);
-        for(int j=n;j>=0;j--){
-            for(int k=1;k<=n;k++) nxt[j][k]=nxt[j+1][k];
-            nxt[j][A[j]]=j;
+	freopen("stdout.txt", "w", stdout);
+    int T, ca = 1;
+    scanf("%d", &T);
+    while(T--){
+        int a, b, N;
+        scanf("%d", &N);
+        memset(tp, 0, sizeof(tp));
+        for(int i = 0; i < N; ++i) {
+            scanf("%d%d", &a, &b);
+            tp[a] = b;
         }
-        vector<int>B;
-        for(int j=1;j<=n;j++){
-            dp[j][j]=1;
-            sum[j][j]=1;
-        }
-        for(int j=n;j>=1;j--){
-            memset(pre,0,sizeof(pre));
-            int tot=1,maxx=0;
-            for(int k=j+1;k<=n;k++){
-                if(A[j]==A[k]){
-                    if(maxx+2>dp[j][k]){
-                        dp[j][k]=maxx+2;
-                        sum[j][k]=tot;
-                    }
-                    else if(maxx==dp[j][k]) sum[j][k]=(sum[j][k]+tot)%mod;
-                }
-                if(A[k]<=A[j]){
-                    int t=nxt[j+1][A[k]];
-                    if(!t) continue;
-                    //if(j==1) printf("t = %d k = %d dp = %d sum = %d\n",t,k,dp[t][k],sum[t][k]);
-                    if(dp[t][k]>maxx){
-                        maxx=dp[t][k];
-                        tot=sum[t][k];
-                    }
-                    else if(dp[t][k]==maxx){
-                        int p=pre[A[k]];
-                        //if(j==1) printf("k = %d pre = %d %d %d %d\n",k,p,dp[t][k],dp[t][p]);
-                        if(p&&dp[t][k]==dp[t][p]) tot-=sum[t][p];
-                        if(tot<0) tot+=mod;
-                        tot=(tot+sum[t][k])%mod;
+        memset(n, 0, sizeof(n));
+        n[99][99] = 1;
+        n[99][100] = 0;
+        for(int i = 1; i < 100; ++i){
+            if(tp[i]){
+                n[i-1][i-1] = 1;
+                n[i-1][tp[i]-1] = -1;
+                n[i-1][100] = 0;
+            }
+            else{
+                int k = 0;
+                for(int j = 1; j <= 6; ++j){
+                    if(j+i <= 100){
+                        k += 1;
+                        n[i-1][i+j-1] = -1;
                     }
                 }
-                pre[A[k]]=k;
-                //if(j==1&&k==5) printf("%d %d\n",maxx,tot);
+                n[i-1][i-1] = k;
+                n[i-1][100] = 6;
             }
         }
-        //printf("sum = %d\n",sum[2][4]);
-        int ans=0,ans1=0;
-        for(int j=1;j<=n;j++){
-            int l=-1,r=-1;
-            for(int k=n;k>=1;k--){
-                if(A[k]==j){
-                    r=k;
-                    break;
-                }
-            }
-            for(int k=1;k<=n;k++){
-                if(A[k]==j){
-                    l=k;
-                    break;
-                }
-            }
-            if(l==-1||r==-1)continue;
-            if(dp[l][r]>ans){
-                ans=dp[l][r];
-                ans1=sum[l][r];
-            }
-            else if(dp[l][r]==ans) ans1=(sum[l][r]+ans1)%mod;
-//            printf("%d %d %d %d\n",ans,sum[l][r],l,r);
-        }
-        printf("%d %d\n",ans,ans1);
+        
+        Gauss(100, 100);
+//        printf("Case %d: %.8f\n", ca++, x[0]);
     }
-    return 0;
 }

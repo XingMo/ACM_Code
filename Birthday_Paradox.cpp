@@ -5,10 +5,12 @@
 #include <cstring>
 #include <algorithm>
 #include <cmath>
+#include <cctype>
 #include <map>
 #include <set>
 #include <queue>
-#include <ctime>
+#include <bitset>
+#include <string>
 using namespace std;
 typedef pair<int,int> Pii;
 typedef long long LL;
@@ -17,23 +19,31 @@ typedef double DBL;
 typedef long double LDBL;
 #define MST(a,b) memset(a,b,sizeof(a))
 #define CLR(a) MST(a,0)
-#define Sqr(a) (a*a)
+#define SQR(a) ((a)*(a))
+#define PCUT puts("----------")
 
-const int maxn=1e5+10;
-int A[maxn];
+int N;
 
 int main()
 {
-	freopen("in.txt", "w", stdout);
+	#ifdef LOCAL
+	freopen("in.txt", "r", stdin);
+//	freopen("out.txt", "w", stdout);
+	#endif
 	
-	srand(time(0));
-	int T=1;
-	printf("%d\n", T);
+	int T;
+	scanf("%d", &T);
 	for(int ck=1; ck<=T; ck++)
 	{
-		int N=10, MOD=6;
-		for(int i=1; i<=N; i++) printf("%d ", rand()%MOD);
-		puts("");
+		scanf("%d", &N);
+		DBL sum=1;
+		int cnt=1;
+		while(sum > 0.5)
+		{
+			sum *= (DBL)(N-cnt)/N;
+			cnt++;
+		}
+		printf("Case %d: %d\n", ck, cnt-1);
 	}
 	return 0;
 }

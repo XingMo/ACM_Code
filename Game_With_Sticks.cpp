@@ -1,3 +1,14 @@
+/*
+Codeforces - 451A
+N根横向木棍，M根纵向木棍组成了一个网格图
+每次可以选择一个交点，去掉所有通过这个交点的木棍
+两个人交替进行这个游戏，问最后谁能胜利
+
+每次选择的一个交点，必然去掉了一根横向木棍和纵向木棍
+所以每次 N和 M都减一
+当其中有一个为 0的时候，就是先手必败态
+所以只和 N、M中较小的那个的奇偶性有关
+*/
 #pragma comment(linker, "/STACK:102400000,102400000")
 #include <cstdio>
 #include <iostream>
@@ -22,24 +33,7 @@ typedef long double LDBL;
 #define SQR(a) ((a)*(a))
 #define PCUT puts("----------")
 
-LL exgcd(LL a, LL b, LL &x, LL &y)
-{
-	if(!b) {x=1; y=0; return a;}
-	LL t,res;
-	res = exgcd(b,a%b,x,y);
-	t=x, x=y, y=t-a/b*y;
-	return res;
-}
-
-LL check(LL b)
-{
-	LL lim=sqrt(b);
-	for(int i=2; i<=lim; i++)
-	{
-		if(b%i==0) return i;
-	}
-	return 0;
-}
+int N,M;
 
 int main()
 {
@@ -48,16 +42,8 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	LL a=2,b=6,x,y;
-	for(int i=1; i<=100; i++)
-	{
-		do
-		{
-			b=rand()%100000;
-		} while(!(a=check(b)));
-		exgcd(a,b,x,y);
-		printf("%lld %lld %lld %lld\n", a, b, x, y);	
-	}
+	scanf("%d%d", &N, &M);
+	puts( min(N,M)&1?"Akshat":"Malvika");
 	return 0;
 }
 

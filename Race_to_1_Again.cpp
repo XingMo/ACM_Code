@@ -22,24 +22,8 @@ typedef long double LDBL;
 #define SQR(a) ((a)*(a))
 #define PCUT puts("----------")
 
-LL exgcd(LL a, LL b, LL &x, LL &y)
-{
-	if(!b) {x=1; y=0; return a;}
-	LL t,res;
-	res = exgcd(b,a%b,x,y);
-	t=x, x=y, y=t-a/b*y;
-	return res;
-}
-
-LL check(LL b)
-{
-	LL lim=sqrt(b);
-	for(int i=2; i<=lim; i++)
-	{
-		if(b%i==0) return i;
-	}
-	return 0;
-}
+const int maxn=1e5+10;
+DBL dp[maxn];
 
 int main()
 {
@@ -48,15 +32,26 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	LL a=2,b=6,x,y;
-	for(int i=1; i<=100; i++)
+	dp[1]=0;
+	for(int i=2; i<maxn; i++)
 	{
-		do
+		int Lim=sqrt(i), cnt=2;
+		dp[i] = 0;
+		for(int j=2; j<=Lim; j++) if(i%j==0)
 		{
-			b=rand()%100000;
-		} while(!(a=check(b)));
-		exgcd(a,b,x,y);
-		printf("%lld %lld %lld %lld\n", a, b, x, y);	
+			cnt+=2;
+			dp[i] += dp[j] + dp[i/j];
+		}
+		if(Lim*Lim==i) {cnt--; dp[i] -= dp[Lim];}
+		dp[i] = (dp[i]+cnt)/(DBL)(cnt-1);
+	}
+	
+	int T;
+	scanf("%d", &T);
+	for(int ck=1, N; ck<=T; ck++)
+	{
+		scanf("%d", &N);
+		printf("Case %d: %.7f\n", ck, dp[N]);
 	}
 	return 0;
 }
