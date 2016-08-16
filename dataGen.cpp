@@ -19,21 +19,18 @@ typedef long double LDBL;
 #define CLR(a) MST(a,0)
 #define Sqr(a) (a*a)
 
-const int maxn=1e5+10;
-int A[maxn];
+
 
 int main()
 {
 	freopen("in.txt", "w", stdout);
 	
 	srand(time(0));
-	int T=1;
+	int T=100;
 	printf("%d\n", T);
 	for(int ck=1; ck<=T; ck++)
 	{
-		int N=10, MOD=6;
-		for(int i=1; i<=N; i++) printf("%d ", rand()%MOD);
-		puts("");
+		int N=300;
 	}
 	return 0;
 }

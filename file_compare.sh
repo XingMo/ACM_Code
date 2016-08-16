@@ -6,7 +6,7 @@ do
 echo 'std'
 time ./std < in.txt > stdout.txt
 echo 'my'
-time ./Explorer_Bo < in.txt > out.txt
+time ./3-idiots < in.txt > out.txt
 if ! diff stdout.txt out.txt; then
 	break
 fi
