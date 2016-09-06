@@ -1,82 +1,121 @@
-#pragma comment(linker, "/STACK:102400000,102400000")
-#include <cstdio>
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include <algorithm>
-#include <cmath>
-#include <cctype>
 #include <map>
 #include <set>
+#include <stack>
 #include <queue>
-#include <bitset>
+#include <cmath>
 #include <string>
+#include <vector>
+#include <cstdio>
+#include <cctype>
+#include <cstring>
+#include <sstream>
+#include <cstdlib>
+#include <iostream>
+#include <algorithm>
+#pragma comment(linker,"/STACK:102400000,102400000")
+
 using namespace std;
-typedef pair<int,int> Pii;
-typedef long long LL;
-typedef unsigned long long ULL;
-typedef double DBL;
-typedef long double LDBL;
-#define MST(a,b) memset(a,b,sizeof(a))
-#define CLR(a) MST(a,0)
-#define SQR(a) ((a)*(a))
-#define PCUT puts("----------")
+#define   MAX           100005
+#define   MAXN          1000005
+#define   maxnode       205
+#define   sigma_size    2
+#define   lson          l,m,rt<<1
+#define   rson          m+1,r,rt<<1|1
+#define   lrt           rt<<1
+#define   rrt           rt<<1|1
+#define   middle        int m=(r+l)>>1
+#define   LL            long long
+#define   ull           unsigned long long
+#define   mem(x,v)      memset(x,v,sizeof(x))
+#define   lowbit(x)     (x&-x)
+#define   pii           pair<int,int>
+#define   bits(a)       __builtin_popcount(a)
+#define   mk            make_pair
+#define   limit         10000
 
-const int maxl=1e3+10;
+//const int    prime = 999983;
+const int    INF   = 0x3f3f3f3f;
+const LL     INFF  = 0x3f3f;
+//const double pi    = acos(-1.0);
+const double inf   = 1e18;
+const double eps   = 1e-9;
+const LL     mod   = 1e9+7;
+const ull    mx    = 133333331;
 
-char S[maxl], Q[maxl+500][maxl], fin[maxl];
+/*****************************************************/
+inline void RI(int &x) {
+      char c;
+      while((c=getchar())<'0' || c>'9');
+      x=c-'0';
+      while((c=getchar())>='0' && c<='9') x=(x<<3)+(x<<1)+c-'0';
+ }
+/*****************************************************/
 
-int onemax(int,char*,char*);
+struct Edge{
+    int v,next,num,c;
+}edge[MAX*2];
 
-int main()
-{
-	#ifdef LOCAL
-//	freopen("in.txt", "r", stdin);
-//	freopen("out.txt", "w", stdout);
-	#endif
-	
-	srand(time(0));
-	int ac=0, wa=0, T=100, N=1000;
-	int fsum=0;
-	for(int ck=1; ck<=T; ck++)
-	{
-		for(int i=0; i<N; i++) S[i] = rand()%2+'1'; S[N]=0;
-		int nt=0, ok=0, firt=0x3f3f3f3f;
-		for(int t=1; t<=N+499; t++)
-		{
-			for(int i=0; i<N; i++) Q[nt][i] = rand()%2+'1'; Q[nt][N]=0;
-			int res = onemax(N, Q[nt], S);
-			if(res==N/2)
-			{
-				nt++;
-				firt = min(firt, t);
-			}
-			if(res==N) {ok=1; break;}
-		}
-		for(int i=0; i<N; i++)
-		{
-			int cnt0=0, cnt1=0;
-			for(int j=0; j<nt; j++) if(Q[j][i]=='0') cnt0++; else cnt1++;
-			if(cnt0>cnt1) fin[i] = '0';
-			else fin[i]='1';
-		}
-		fin[N]=0;
-		if(onemax(N, fin, S)) ok=1;
-		
-		if(ok) ac++;
-		else wa++;
-//		printf("%d\n", firt);
-		fsum += firt;
-	}
-	printf("T:%d ac:%d wa:%d, faver:%.3f\n", T, ac, wa, (DBL)fsum/T);
-	return 0;
+struct Node{
+    int id,val;
+    bool operator<(const Node &a)const{
+        return val>a.val;
+    }
+}x;
+
+int head[MAX];
+LL dis[MAX*2];
+int vis[MAX*2];
+int tot;
+
+void add_edge(int a,int b,int c,int d){
+    edge[tot]=(Edge){b,head[a],c,d};
+    head[a]=tot++;
+    edge[tot]=(Edge){a,head[b],c,d};
+    head[b]=tot++;
 }
 
-int onemax(int len, char A[], char B[])
-{
-	int cnt=0;
-	for(int i=0; i<len; i++) if(A[i]==B[i]) cnt++;
-	if(cnt==len || cnt==len/2) return cnt;
-	else return 0; 
+LL dijkstra(int s,int t){
+    priority_queue<Node> q;
+    for(int i=0;i<tot;i++){
+        dis[i]=1e18;
+        vis[i]=0;
+    }
+    for(int i=head[s];i!=-1;i=edge[i].next){
+        x=(Node){i,edge[i].c};
+        dis[i]=edge[i].c;
+        q.push(x);
+    }
+    LL ans=1e18;
+    while(!q.empty()){
+        x=q.top();
+        q.pop();
+        int p=x.id;
+        if(vis[p]) continue;
+        vis[p]=1;
+        int u=edge[p].v;
+        if(u==t) ans=min(ans,dis[p]);
+        for(int i=head[u];i!=-1;i=edge[i].next){
+            int v=edge[i].v;
+            if(!vis[i]&&dis[i]>dis[p]+edge[i].c+abs(edge[i].num-edge[p].num)){
+                dis[i]=dis[p]+edge[i].c+abs(edge[i].num-edge[p].num);
+                q.push((Node){i,dis[i]});
+            }
+        }
+    }
+    return ans;
 }
-
+int main() {
+	freopen("in.txt", "r", stdin);
+    int n,m;
+    while(cin>>n>>m){
+        tot=0;
+        for(int i=1;i<=n;i++) head[i]=-1;
+        for(int i=0;i<m;i++){
+            int a,b,c,d;
+            RI(a);RI(b);RI(c);RI(d);
+            add_edge(a,b,c,d);
+        }
+        cout<<dijkstra(1,n)<<endl;
+    }
+    return 0;
+}

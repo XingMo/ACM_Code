@@ -1,90 +1,136 @@
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-#include <algorithm>
-#define MOD 12345678
+#include<cstdio>
+#include<cmath>
+#include<cstring>
+#include<iostream>
+#include<algorithm>
+#include<cstdlib>
+#include<queue>
+#include<map>
+#include<stack>
+#include<set>
+
 using namespace std;
-const int dx[]={-1,-1,-1,0,0,1,1,1,0};
-const int dy[]={-1,0,1,-1,1,-1,0,1,0};
-int n,m,ans;
-char s[10][10];
-int Calculate()
-{
-    static pair<int,int> stack[10];
-    static int cnt[1<<8],f[30][1<<8];
-    int i,j,k,sta,top=0;
-    memset(cnt,0,sizeof cnt);
-    memset(f,0,sizeof f);
-    for(i=1;i<=n;i++)
-        for(j=1;j<=m;j++)
-            if(s[i][j]=='X')
-                stack[++top]=pair<int,int>(i,j);
-    for(sta=0;sta<1<<top;sta++)
-    {
-        static bool unfilled[10][10];
-        memset(unfilled,0,sizeof unfilled);
-        for(i=1;i<=top;i++)
-            if(~sta&(1<<i-1))
-                unfilled[stack[i].first][stack[i].second]=true;
-        for(i=1;i<=n;i++)
-            for(j=1;j<=m;j++)
-            {
-                for(k=0;k<9;k++)
-                    if(unfilled[i+dx[k]][j+dy[k]])
-                        break;
-                if(k==9)
-                    cnt[sta]++;
-            }
+
+const int maxn=555;
+const int maxisn=10;
+const double eps=1e-8;
+const double pi=acos(-1.0);
+
+int dcmp(double x){
+    if(x>eps) return 1;
+    return x<-eps ? -1 : 0;
+}
+inline double Sqr(double x){
+    return x*x;
+}
+struct Point{
+    double x,y;
+    Point(){x=y=0;}
+    Point(double x,double y):x(x),y(y){};
+    friend Point operator + (const Point &a,const Point &b) {
+        return Point(a.x+b.x,a.y+b.y);
     }
-    f[0][0]=1;
-    for(i=1;i<=n*m;i++)
-        for(sta=0;sta<1<<top;sta++)
-        {
-            (f[i][sta]+=(long long)f[i-1][sta]*max(cnt[sta]-i+1,0))%=MOD;
-            for(j=1;j<=top;j++)
-                if(sta&(1<<j-1))
-                    (f[i][sta]+=f[i-1][sta^(1<<j-1)])%=MOD;
+    friend Point operator - (const Point &a,const Point &b) {
+        return Point(a.x-b.x,a.y-b.y);
+    }
+    friend bool operator == (const Point &a,const Point &b) {
+        return dcmp(a.x-b.x)==0&&dcmp(a.y-b.y)==0;
+    }
+    friend Point operator * (const Point &a,const double &b) {
+        return Point(a.x*b,a.y*b);
+    }
+    friend Point operator * (const double &a,const Point &b) {
+        return Point(a*b.x,a*b.y);
+    }
+    friend Point operator / (const Point &a,const double &b) {
+        return Point(a.x/b,a.y/b);
+    }
+    friend bool operator < (const Point &a, const Point &b) {
+        return a.x < b.x || (a.x == b.x && a.y < b.y);
+    }
+    inline double dot(const Point &b)const{
+        return x*b.x+y*b.y;
+    }
+    inline double cross(const Point &b,const Point &c)const{
+        return (b.x-x)*(c.y-y)-(c.x-x)*(b.y-y);
+    }
+
+};
+
+Point LineCross(const Point &a,const Point &b,const Point &c,const Point &d){
+    double u=a.cross(b,c),v=b.cross(a,d);
+    return Point((c.x*v+d.x*u)/(u+v),(c.y*v+d.y*u)/(u+v));
+}
+double PolygonArea(Point p[],int n){
+     if(n<3) return 0.0;
+     double s=p[0].y*(p[n-1].x-p[1].x);
+     p[n]=p[0];
+     for(int i=1;i<n;i++){
+        s+=p[i].y*(p[i-1].x-p[i+1].x);
+     }
+     return fabs(s*0.5);
+}
+double CPIA(Point a[],Point b[],int na,int nb){
+    Point p[maxisn],temp[maxisn];
+    int i,j,tn,sflag,eflag;
+    a[na]=a[0],b[nb]=b[0];
+    memcpy(p,b,sizeof(Point)*(nb+1));
+    for(i=0;i<na&&nb>2;++i){
+        sflag=dcmp(a[i].cross(a[i+1],p[0]));
+        for(j=tn=0;j<nb;++j,sflag=eflag){
+            if(sflag>=0) temp[tn++]=p[j];
+            eflag=dcmp(a[i].cross(a[i+1],p[j+1]));
+            if((sflag^eflag)==-2)
+                temp[tn++]=LineCross(a[i],a[i+1],p[j],p[j+1]);
         }
-    return f[n*m][(1<<top)-1];
+        memcpy(p,temp,sizeof(Point)*tn);
+        nb=tn,p[nb]=p[0];
+    }
+    if(nb<3) return 0.0;
+    return PolygonArea(p,nb);
 }
-void DFS(int x,int y,int cnt)
-{
-    int i;
-    if(y==m+1)
-    {
-        DFS(x+1,1,cnt);
-        return ;
+double SPIA(Point a[],Point b[],int na,int nb){
+    int i,j;
+    Point t1[4],t2[4];
+    double res=0.0,if_clock_t1,if_clock_t2;
+    a[na]=t1[0]=a[0];
+    b[nb]=t2[0]=b[0];
+    for(i=2;i<na;i++){
+        t1[1]=a[i-1],t1[2]=a[i];
+        if_clock_t1=dcmp(t1[0].cross(t1[1],t1[2]));
+        if(if_clock_t1<0) swap(t1[1],t1[2]);
+        for(j=2;j<nb;j++){
+            t2[1]=b[j-1],t2[2]=b[j];
+            if_clock_t2=dcmp(t2[0].cross(t2[1],t2[2]));
+            if(if_clock_t2<0) swap(t2[1],t2[2]);
+            res+=CPIA(t1,t2,3,3)*if_clock_t1*if_clock_t2;
+        }
     }
-    if(x==n+1)
-    {
-        (ans+=Calculate()*(cnt&1?-1:1))%=MOD;
-        return ;
-    }
-    DFS(x,y+1,cnt);
-    for(i=0;i<9;i++)
-        if(s[x+dx[i]][y+dy[i]]=='X')
-            break;
-    if(i==9)
-    {
-        s[x][y]='X';
-        DFS(x,y+1,cnt+1);
-        s[x][y]='.';
-    }
+    return res;//面积交
+    //return PolygonArea(a,na)+PolygonArea(b,nb)-res;//面积并
 }
-int main()
-{
+
+Point a[222],b[222];
+Point aa[222],bb[222];
+
+int main(){
+
 	freopen("in.txt", "r", stdin);
-	freopen("stdout.txt", "w", stdout);
-    int i,j,k;
-    cin>>n>>m;
-    for(i=1;i<=n;i++)
-        scanf("%s",s[i]+1);
-    for(i=1;i<=n;i++)
-        for(j=1;j<=m;j++)
-            if(s[i][j]=='X')
-                for(k=0;k<8;k++)
-                    if(s[i+dx[k]][j+dy[k]]=='X')
-                        return puts("0"),0;
-    DFS(1,1,0);
-    cout<<(ans+MOD)%MOD<<endl;
+    double x1,y1,x2,y2;
+    double x3,y3,x4,y4;
+    while(scanf("%lf %lf %lf %lf",&x1,&y1,&x2,&y2)!=EOF){
+        scanf("%lf %lf %lf %lf",&x3,&y3,&x4,&y4);
+        a[0]=Point(x1,y1);
+        a[1]=Point(x2,y1);
+        a[2]=Point(x1,y2);
+
+        b[0]=Point(x3,y3);
+        b[1]=Point(x4,y3);
+        b[2]=Point(x4,y4);
+        b[3]=Point(x3,y4);
+
+        printf("%.8f\n",fabs(SPIA(a,b,3,4)));
+        //printf("%.8f\n",ConvexPolygonArea(out,m));
+    }
+    return 0;
 }

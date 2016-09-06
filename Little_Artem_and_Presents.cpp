@@ -5,10 +5,13 @@
 #include <cstring>
 #include <algorithm>
 #include <cmath>
+#include <cctype>
 #include <map>
 #include <set>
 #include <queue>
-#include <ctime>
+#include <bitset>
+#include <string>
+#include <complex>
 using namespace std;
 typedef pair<int,int> Pii;
 typedef long long LL;
@@ -17,23 +20,23 @@ typedef double DBL;
 typedef long double LDBL;
 #define MST(a,b) memset(a,b,sizeof(a))
 #define CLR(a) MST(a,0)
-#define Sqr(a) (a*a)
+#define SQR(a) ((a)*(a))
+#define PCUT puts("\n----------")
 
-
+LL N;
 
 int main()
 {
-	freopen("in.txt", "w", stdout);
+	#ifdef LOCAL
+	freopen("in.txt", "r", stdin);
+//	freopen("out.txt", "w", stdout);
+	#endif
 	
-	srand(time(0));
-	int T=1;
-//	printf("%d\n", T);
-	for(int ck=1; ck<=T; ck++)
+	while(cin >> N)
 	{
-		const int maxn=5e4;
-		printf("%d %d\n", maxn, maxn-1);
-		int ex=1;
-		for(int i=2; i<=maxn; i++) printf("1 %d %d %d\n", i, ex++, rand()%maxn);
+		LL ans = N/3*2;
+		if(N%3) ans++;
+		cout << ans << "\n";
 	}
 	return 0;
 }

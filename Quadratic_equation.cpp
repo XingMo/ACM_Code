@@ -5,10 +5,13 @@
 #include <cstring>
 #include <algorithm>
 #include <cmath>
+#include <cctype>
 #include <map>
 #include <set>
 #include <queue>
-#include <ctime>
+#include <bitset>
+#include <string>
+#include <complex>
 using namespace std;
 typedef pair<int,int> Pii;
 typedef long long LL;
@@ -17,23 +20,26 @@ typedef double DBL;
 typedef long double LDBL;
 #define MST(a,b) memset(a,b,sizeof(a))
 #define CLR(a) MST(a,0)
-#define Sqr(a) (a*a)
+#define SQR(a) ((a)*(a))
+#define PCUT puts("\n----------")
 
-
+const DBL eps=1e-6;
+DBL A,B,C;
 
 int main()
 {
-	freopen("in.txt", "w", stdout);
+	#ifdef LOCAL
+	freopen("in.txt", "r", stdin);
+//	freopen("out.txt", "w", stdout);
+	#endif
 	
-	srand(time(0));
-	int T=1;
-//	printf("%d\n", T);
-	for(int ck=1; ck<=T; ck++)
+	while(~scanf("%lf%lf%lf", &A, &B, &C))
 	{
-		const int maxn=5e4;
-		printf("%d %d\n", maxn, maxn-1);
-		int ex=1;
-		for(int i=2; i<=maxn; i++) printf("1 %d %d %d\n", i, ex++, rand()%maxn);
+		DBL x1,x2,d;
+		d=sqrt(SQR(B)-4*A*C);
+		x1 = (-B-d)/(2*A), x2 = (-B+d)/(2*A);
+		if(abs(x1-x2)<eps) printf("%.5f\n", x1);
+		else printf("%.5f %.5f\n", x1, x2);
 	}
 	return 0;
 }
