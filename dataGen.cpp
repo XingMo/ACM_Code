@@ -26,14 +26,17 @@ int main()
 	freopen("in.txt", "w", stdout);
 	
 	srand(time(0));
-	int T=1;
-//	printf("%d\n", T);
+	int T=10;
+	printf("%d\n", T);
 	for(int ck=1; ck<=T; ck++)
 	{
-		const int maxn=5e4;
-		printf("%d %d\n", maxn, maxn-1);
-		int ex=1;
-		for(int i=2; i<=maxn; i++) printf("1 %d %d %d\n", i, ex++, rand()%maxn);
+		int N=1e5; LL K=(LL)rand()*rand()*0.8;
+		printf("%d %lld\n", N, K);
+		for(int i=1; i<=N; i++) printf("%d ", rand()); puts("");
+		for(int i=2; i<=N; i++)
+		{
+			printf("%d %d\n", rand()%(i-1)+1, i);
+		}
 	}
 	return 0;
 }

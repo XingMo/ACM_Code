@@ -1,136 +1,155 @@
-#include<cstdio>
-#include<cmath>
-#include<cstring>
-#include<iostream>
-#include<algorithm>
-#include<cstdlib>
-#include<queue>
-#include<map>
-#include<stack>
-#include<set>
-
+#include <iostream>
+#include <cstring>
+#include <cstdio>
+#include <vector>
+#include <set>
+#include <map>
+#include <queue>
+#include <algorithm>
+#include <stack>
+#include <cctype>
+#include <cmath>
+#include <vector>
+#include <sstream>
+#include <bitset>
+#include <deque>
+#include <iomanip>
 using namespace std;
+#define pr(x) cout << "x = " << x << endl;
+#define bug cout << "bugbug" << endl;
+#define ppr(x, y) printf("(%d, %d)\n", x, y);
+#define pfun(a, b) printf("x = %d   f(x) = %d\n", a, b);
 
-const int maxn=555;
-const int maxisn=10;
-const double eps=1e-8;
-const double pi=acos(-1.0);
+typedef long long ll;
+typedef pair<int, int> P;
+typedef unsigned int uint;
+const int MOD = 1e9 + 7;
+const int inf = 0x3f3f3f3f;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int maxn = 1e5 + 4;
+const int maxm = 1e5 + 4;
 
-int dcmp(double x){
-    if(x>eps) return 1;
-    return x<-eps ? -1 : 0;
+ll n, K, num[maxn], S[maxn], T[maxn], hath[maxn], Num[maxn];
+vector<int> G[maxn];
+bool in[maxn];
+int u, v, m, ind, rot, cnt, val[maxn * 30], lson[maxn * 30], rson[maxn * 30], Ti[maxn];
+inline int get(ll num){
+	return lower_bound(hath+1, hath+m, num) - hath;
 }
-inline double Sqr(double x){
-    return x*x;
+void dfs(int u){
+	S[u] = ind++;
+	Num[ind - 1] = num[u];
+	for (int i = 0; i < (int)G[u].size(); ++i){
+//		cout << "from " << u << ' ' << "  to  " << G[u][i] << endl;
+		dfs(G[u][i]); 
+	}
+	T[u] = ind-1;
+	return;
+} 
+int build(int l, int r){
+	int root = cnt++;
+	val[root] = 0;
+	if (l != r){
+		lson[root] = build(l, (l+r)/2);
+		rson[root] = build((l+r)/2+1, r);
+	}
+	return root;
 }
-struct Point{
-    double x,y;
-    Point(){x=y=0;}
-    Point(double x,double y):x(x),y(y){};
-    friend Point operator + (const Point &a,const Point &b) {
-        return Point(a.x+b.x,a.y+b.y);
-    }
-    friend Point operator - (const Point &a,const Point &b) {
-        return Point(a.x-b.x,a.y-b.y);
-    }
-    friend bool operator == (const Point &a,const Point &b) {
-        return dcmp(a.x-b.x)==0&&dcmp(a.y-b.y)==0;
-    }
-    friend Point operator * (const Point &a,const double &b) {
-        return Point(a.x*b,a.y*b);
-    }
-    friend Point operator * (const double &a,const Point &b) {
-        return Point(a*b.x,a*b.y);
-    }
-    friend Point operator / (const Point &a,const double &b) {
-        return Point(a.x/b,a.y/b);
-    }
-    friend bool operator < (const Point &a, const Point &b) {
-        return a.x < b.x || (a.x == b.x && a.y < b.y);
-    }
-    inline double dot(const Point &b)const{
-        return x*b.x+y*b.y;
-    }
-    inline double cross(const Point &b,const Point &c)const{
-        return (b.x-x)*(c.y-y)-(c.x-x)*(b.y-y);
-    }
-
-};
-
-Point LineCross(const Point &a,const Point &b,const Point &c,const Point &d){
-    double u=a.cross(b,c),v=b.cross(a,d);
-    return Point((c.x*v+d.x*u)/(u+v),(c.y*v+d.y*u)/(u+v));
+int update(int root, int pos){
+	int l = 1, r = m - 1;
+	int newroot = cnt++;
+	int ans = newroot;
+	val[newroot] = val[root] + 1;
+	while(l < r){
+		int mid = (l + r) / 2;
+		if (pos <= mid){
+			rson[newroot] = rson[root];
+			lson[newroot] = cnt;
+			newroot = cnt++;
+			root = lson[root];
+			r = mid;
+		}else{
+			lson[newroot] = lson[root];
+			rson[newroot] = cnt;
+			newroot = cnt++;
+			root = rson[root];
+			l = mid + 1;
+		}
+		val[newroot] = val[root] + 1;
+	} 
+	return ans;
 }
-double PolygonArea(Point p[],int n){
-     if(n<3) return 0.0;
-     double s=p[0].y*(p[n-1].x-p[1].x);
-     p[n]=p[0];
-     for(int i=1;i<n;i++){
-        s+=p[i].y*(p[i-1].x-p[i+1].x);
-     }
-     return fabs(s*0.5);
+ll query(int pos, int l, int r, int lft, int rght){
+	if (l <= lft && r >= rght) return val[pos];
+	if (l  > rght || r < lft) return 0;
+	return query(lson[pos], l, r, lft, (lft + rght) / 2) 
+		+ query(rson[pos], l, r, (lft + rght) / 2 + 1, rght);
 }
-double CPIA(Point a[],Point b[],int na,int nb){
-    Point p[maxisn],temp[maxisn];
-    int i,j,tn,sflag,eflag;
-    a[na]=a[0],b[nb]=b[0];
-    memcpy(p,b,sizeof(Point)*(nb+1));
-    for(i=0;i<na&&nb>2;++i){
-        sflag=dcmp(a[i].cross(a[i+1],p[0]));
-        for(j=tn=0;j<nb;++j,sflag=eflag){
-            if(sflag>=0) temp[tn++]=p[j];
-            eflag=dcmp(a[i].cross(a[i+1],p[j+1]));
-            if((sflag^eflag)==-2)
-                temp[tn++]=LineCross(a[i],a[i+1],p[j],p[j+1]);
-        }
-        memcpy(p,temp,sizeof(Point)*tn);
-        nb=tn,p[nb]=p[0];
-    }
-    if(nb<3) return 0.0;
-    return PolygonArea(p,nb);
+ll Query(int s, int t, ll num){
+	int id = get(num);
+	if (hath[id] != num) id--;
+//	cout << query(T)
+//	cout << s << ' ' << t << endl;
+//	cout << Ti[s-1] << ' ' << Ti[t] << endl; 
+	return query(Ti[t], 1, id, 1, m-1) - query(Ti[s-1], 1, id, 1, m-1);
 }
-double SPIA(Point a[],Point b[],int na,int nb){
-    int i,j;
-    Point t1[4],t2[4];
-    double res=0.0,if_clock_t1,if_clock_t2;
-    a[na]=t1[0]=a[0];
-    b[nb]=t2[0]=b[0];
-    for(i=2;i<na;i++){
-        t1[1]=a[i-1],t1[2]=a[i];
-        if_clock_t1=dcmp(t1[0].cross(t1[1],t1[2]));
-        if(if_clock_t1<0) swap(t1[1],t1[2]);
-        for(j=2;j<nb;j++){
-            t2[1]=b[j-1],t2[2]=b[j];
-            if_clock_t2=dcmp(t2[0].cross(t2[1],t2[2]));
-            if(if_clock_t2<0) swap(t2[1],t2[2]);
-            res+=CPIA(t1,t2,3,3)*if_clock_t1*if_clock_t2;
-        }
-    }
-    return res;//面积交
-    //return PolygonArea(a,na)+PolygonArea(b,nb)-res;//面积并
-}
-
-Point a[222],b[222];
-Point aa[222],bb[222];
-
 int main(){
-
+//必须编译过才能交 
 	freopen("in.txt", "r", stdin);
-    double x1,y1,x2,y2;
-    double x3,y3,x4,y4;
-    while(scanf("%lf %lf %lf %lf",&x1,&y1,&x2,&y2)!=EOF){
-        scanf("%lf %lf %lf %lf",&x3,&y3,&x4,&y4);
-        a[0]=Point(x1,y1);
-        a[1]=Point(x2,y1);
-        a[2]=Point(x1,y2);
-
-        b[0]=Point(x3,y3);
-        b[1]=Point(x4,y3);
-        b[2]=Point(x4,y4);
-        b[3]=Point(x3,y4);
-
-        printf("%.8f\n",fabs(SPIA(a,b,3,4)));
-        //printf("%.8f\n",ConvexPolygonArea(out,m));
-    }
-    return 0;
+	ios::sync_with_stdio(false);
+	int ik, i, j, k, kase;
+	cin >> kase;
+	while(kase--){
+		cin >> n >> K;
+		for (i = 1; i <= n; ++i) G[i].clear();
+		for (i = 1; i <= n; ++i) cin >> num[i];
+		memcpy(hath, num, sizeof hath);
+		
+		hath[n+1] = INF;
+		sort(hath+1, hath+2+n);
+		m = unique(hath+1, hath+2+n) - hath;
+//		cout << m << endl;
+//		for (i = 1; i < m; ++i) cout << hath[i] << ' ';
+		memset(in, false, sizeof in);
+		for (i = 1; i < n; ++i){
+			cin >> u >> v;
+			G[u].push_back(v);
+			in[v] = true;
+		}
+		for (i = 1; i <= n; ++i) if (!in[i]) rot = i;
+		ind = 1;
+		dfs(rot);
+		
+		cnt = 0;
+		Ti[0] = build(1, m-1);
+		for (i = 1; i <= n; ++i){
+			Ti[i] = update(Ti[i-1], get(Num[i]));
+		}
+		ll ans = 0;
+		for (i = 1; i <= n; ++i){
+//			cout << "node " << i << ' ' << S[i] << ' ' << T[i] << endl;
+			if (S[i] == T[i]) continue;
+			ans += Query(S[i]+1, T[i], K / num[i]);
+		}
+		cout << ans << endl;
+	}
+	return 0;
 }
+/*
+1
+9 13
+3 4 2 1 3 3 1 5 2
+1 2
+1 3
+2 4
+2 5
+4 6
+4 9
+6 7
+7 8
+*/
+
+
+
+
+
