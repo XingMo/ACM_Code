@@ -6,7 +6,7 @@ do
 echo 'std'
 time ./std < in.txt > stdout.txt
 echo 'my'
-time ./Weak_Pair < in.txt > out.txt
+time ./Dinner_Coming_Soon < in.txt > out.txt
 if ! diff stdout.txt out.txt; then
 	break
 fi
