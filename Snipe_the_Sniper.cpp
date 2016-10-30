@@ -23,7 +23,18 @@ typedef long double LDBL;
 #define SQR(a) ((a)*(a))
 #define PCUT puts("\n----------")
 
-int F[110], G[110];
+const DBL eps = 1e-8;
+int sgn(DBL x){return x>eps?1:(x<-eps?-1:0);}
+struct data
+{
+	DBL x,y,s,r,d;
+	int read(){return scanf("%lf%lf%lf%lf%lf", &x, &y, &s, &r, &d);}
+};
+
+int N;
+DBL HP;
+data in[110];
+bool vis[110];
 
 int main()
 {
@@ -32,26 +43,28 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	
-	for(int i=1; i<=100; i++)
+	while(~scanf("%d", &N))
 	{
-		for(int j=0; j<i; j++)
+		for(int i=0; i<N; i++) in[i].read();
+		for(int i=0; i<N; i++) in[i].r += 100;
+		CLR(vis);
+		scanf("%lf", &HP);
+		int ok=1;
+		while(ok)
 		{
-			for(int k=0; k<i; k++) if((j*k)%i != 0) F[i]++;
+			ok = 0;
+			DBL sum = 0;
+			for(int i=0; i<N; i++) if(!vis[i] && sgn( SQR(100-in[i].x) + SQR(in[i].y) - SQR(in[i].r)) <= 0)
+			{
+				ok = 1;
+				vis[i] = 1;
+				HP -= in[i].d;
+				sum += in[i].s;
+			}
+			for(int i=0; i<N; i++) if(!vis[i]) in[i].r += sum;
 		}
+		puts(sgn(HP)>0? "Safe!":"Danger!");
 	}
-//	for(int i=1; i<=100; i++) printf("%d: %d\n", i, F[i]);
-	for(int i=1; i<=100; i++)
-	{
-		int lim = sqrt(i);
-		for(int j=1; j<lim; j++) if(i%j == 0)
-		{
-			G[i] += F[j] + F[i/j];
-		}
-		if(lim*lim==i) G[i] += F[lim];
-		else if(i%lim == 0) G[i] += F[lim] + F[i/lim];
-	}
-	for(int i=1; i<=100; i++) printf("%d: %d\n", i, G[i]);
 	return 0;
 }
 

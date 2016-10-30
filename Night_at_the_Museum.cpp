@@ -23,7 +23,7 @@ typedef long double LDBL;
 #define SQR(a) ((a)*(a))
 #define PCUT puts("\n----------")
 
-int F[110], G[110];
+char str[110];
 
 int main()
 {
@@ -32,26 +32,17 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	
-	for(int i=1; i<=100; i++)
+	while(~scanf("%s", str))
 	{
-		for(int j=0; j<i; j++)
+		int np = 0, ans = 0, del;
+		for(int i=0; str[i]; i++)
 		{
-			for(int k=0; k<i; k++) if((j*k)%i != 0) F[i]++;
+			del = abs(str[i]-'a' - np);
+			ans += min(del, 26-del);
+			np = str[i]-'a';
 		}
+		printf("%d\n", ans);
 	}
-//	for(int i=1; i<=100; i++) printf("%d: %d\n", i, F[i]);
-	for(int i=1; i<=100; i++)
-	{
-		int lim = sqrt(i);
-		for(int j=1; j<lim; j++) if(i%j == 0)
-		{
-			G[i] += F[j] + F[i/j];
-		}
-		if(lim*lim==i) G[i] += F[lim];
-		else if(i%lim == 0) G[i] += F[lim] + F[i/lim];
-	}
-	for(int i=1; i<=100; i++) printf("%d: %d\n", i, G[i]);
 	return 0;
 }
 

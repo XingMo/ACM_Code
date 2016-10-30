@@ -23,7 +23,8 @@ typedef long double LDBL;
 #define SQR(a) ((a)*(a))
 #define PCUT puts("\n----------")
 
-int F[110], G[110];
+const int maxn=5e3+10;
+ULL F[maxn], Cat[maxn];
 
 int main()
 {
@@ -32,26 +33,18 @@ int main()
 //	freopen("out.txt", "w", stdout);
 	#endif
 	
-	
-	for(int i=1; i<=100; i++)
+	F[0] = F[1] = F[2] = F[3] = 1;
+	F[4] = 3;
+	Cat[0] = Cat[1] = Cat[2] = Cat[3] = 1;
+	Cat[4] = 2;
+	for(int n=5; n<=5000; n++)
 	{
-		for(int j=0; j<i; j++)
-		{
-			for(int k=0; k<i; k++) if((j*k)%i != 0) F[i]++;
-		}
+		for(int i=1; i<=n-2; i++) F[n] += F[i+1]*F[n-i];
+		Cat[n] = F[n];
+		for(int i=2; i<=n-2; i++) F[n] += Cat[n-i+1]*F[i];
 	}
-//	for(int i=1; i<=100; i++) printf("%d: %d\n", i, F[i]);
-	for(int i=1; i<=100; i++)
-	{
-		int lim = sqrt(i);
-		for(int j=1; j<lim; j++) if(i%j == 0)
-		{
-			G[i] += F[j] + F[i/j];
-		}
-		if(lim*lim==i) G[i] += F[lim];
-		else if(i%lim == 0) G[i] += F[lim] + F[i/lim];
-	}
-	for(int i=1; i<=100; i++) printf("%d: %d\n", i, G[i]);
+	int N;
+	while(~scanf("%d", &N)) printf("%llu\n", F[N]);
 	return 0;
 }
 
