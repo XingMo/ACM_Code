@@ -1,1 +1,1 @@
-47
+out.txt: test.cpp

@@ -5,10 +5,13 @@
 #include <cstring>
 #include <algorithm>
 #include <cmath>
+#include <cctype>
 #include <map>
 #include <set>
 #include <queue>
-#include <ctime>
+#include <bitset>
+#include <string>
+#include <complex>
 using namespace std;
 typedef pair<int,int> Pii;
 typedef long long LL;
@@ -18,18 +21,34 @@ typedef long double LDBL;
 #define MST(a,b) memset(a,b,sizeof(a))
 #define CLR(a) MST(a,0)
 #define SQR(a) ((a)*(a))
+#define PCUT puts("\n----------")
+
+const int maxn = 1e5+10;
+int N;
+int tim[maxn];
 
 int main()
 {
-	freopen("in.txt", "w", stdout);
+	#ifdef LOCAL
+//	freopen("in.txt", "r", stdin);
+//	freopen("out.txt", "w", stdout);
+	#endif
 	
-	srand(time(0));
-	int T=50;
-//	printf("%d\n", T);
+	int T;
+	scanf("%d", &T);
 	for(int ck=1; ck<=T; ck++)
 	{
-		const int MOD = 1e9;
-		printf("%d %d\n", rand()%MOD+1, rand()%MOD+1);
+		scanf("%d", &N);
+		for(int i=1; i<=N; i++) scanf("%d", &tim[i]);
+		sort(tim+1, tim+1+N);
+		LL sum = 0;
+		int ans = 0;
+		for(int i=1; i<=N; i++)
+		{
+			if(sum > tim[i]) ans++;
+			else sum += tim[i];
+		}
+		printf("%d\n", ans);
 	}
 	return 0;
 }
